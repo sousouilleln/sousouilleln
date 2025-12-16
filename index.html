@@ -1,0 +1,2467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MotionBoard Studio | Corporate Motion Design Agency</title>
+    <style>
+        /*
+        ========================================
+        CSS VARIABLES & BASE STYLES
+        ========================================
+        */
+        :root {
+            /* Colors */
+            --primary-blue: #2563eb;
+            --primary-blue-dark: #1d4ed8;
+            --primary-blue-light: #3b82f6;
+            --secondary-purple: #8b5cf6;
+            --secondary-teal: #14b8a6;
+            --accent-gradient: linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%);
+
+            --white: #ffffff;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+
+            /* Spacing */
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+            --space-3xl: 4rem;
+            --space-4xl: 6rem;
+
+            /* Typography */
+            --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.875rem;
+            --font-size-base: 1rem;
+            --font-size-lg: 1.125rem;
+            --font-size-xl: 1.25rem;
+            --font-size-2xl: 1.5rem;
+            --font-size-3xl: 1.875rem;
+            --font-size-4xl: 2.25rem;
+            --font-size-5xl: 3rem;
+            --font-size-6xl: 3.75rem;
+
+            /* Border Radius */
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            --radius-full: 9999px;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+
+            /* Transitions */
+            --transition-fast: 150ms ease;
+            --transition-base: 250ms ease;
+            --transition-slow: 350ms ease;
+            --transition-smooth: 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+            /* Easing */
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /*
+        ========================================
+        RESET & BASE
+        ========================================
+        */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: var(--font-family);
+            font-size: var(--font-size-base);
+            line-height: 1.6;
+            color: var(--gray-800);
+            background-color: var(--white);
+            overflow-x: hidden;
+        }
+
+        img, video {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        ul, ol {
+            list-style: none;
+        }
+
+        /*
+        ========================================
+        UTILITY CLASSES
+        ========================================
+        */
+        .container {
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 var(--space-lg);
+        }
+
+        .section {
+            padding: var(--space-4xl) 0;
+        }
+
+        .section-title {
+            font-size: var(--font-size-3xl);
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: var(--space-md);
+            text-align: center;
+        }
+
+        .section-subtitle {
+            font-size: var(--font-size-lg);
+            color: var(--gray-500);
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto var(--space-3xl);
+        }
+
+        .highlight-pill {
+            display: inline-block;
+            background: var(--primary-blue);
+            color: var(--white);
+            padding: 0.1em 0.4em;
+            border-radius: var(--radius-full);
+            margin: 0 0.1em;
+        }
+
+        /* Scroll Animation Classes */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s var(--ease-out-expo), transform 0.8s var(--ease-out-expo);
+        }
+
+        .reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-stagger {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .reveal-stagger.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /*
+        ========================================
+        HEADER
+        ========================================
+        */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            transition: all var(--transition-base);
+            padding: var(--space-md) 0;
+        }
+
+        .header.scrolled {
+            padding: var(--space-sm) 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-lg);
+        }
+
+        .logo {
+            font-size: var(--font-size-xl);
+            font-weight: 800;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--accent-gradient);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--white);
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xl);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+        }
+
+        .nav-link {
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            color: var(--gray-600);
+            transition: color var(--transition-fast);
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-blue);
+            transition: width var(--transition-base);
+        }
+
+        .nav-link:hover {
+            color: var(--primary-blue);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .header-contact {
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: var(--font-size-sm);
+            color: var(--gray-600);
+            transition: color var(--transition-fast);
+        }
+
+        .contact-item:hover {
+            color: var(--primary-blue);
+        }
+
+        .contact-item svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            padding: var(--space-sm) var(--space-lg);
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            border-radius: var(--radius-full);
+            transition: all var(--transition-base);
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-blue-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary-blue);
+            border: 2px solid var(--primary-blue);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-blue);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .btn-lg {
+            padding: var(--space-md) var(--space-xl);
+            font-size: var(--font-size-base);
+        }
+
+        /* Mobile Menu */
+        .burger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            padding: var(--space-sm);
+            cursor: pointer;
+        }
+
+        .burger span {
+            width: 24px;
+            height: 2px;
+            background: var(--gray-700);
+            transition: all var(--transition-base);
+        }
+
+        .burger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .burger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .burger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            padding: var(--space-xl);
+            box-shadow: var(--shadow-xl);
+            flex-direction: column;
+            gap: var(--space-md);
+            z-index: 999;
+        }
+
+        .mobile-nav.active {
+            display: flex;
+        }
+
+        .mobile-nav .nav-link {
+            font-size: var(--font-size-lg);
+            padding: var(--space-sm) 0;
+        }
+
+        /*
+        ========================================
+        HERO SECTION
+        ========================================
+        */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding-top: 100px;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, var(--gray-50) 0%, var(--white) 100%);
+        }
+
+        .hero-bg-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .hero-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.5;
+        }
+
+        .hero-shape-1 {
+            width: 600px;
+            height: 600px;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            top: -200px;
+            right: -200px;
+        }
+
+        .hero-shape-2 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
+            bottom: -100px;
+            left: -100px;
+        }
+
+        .hero-inner {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-4xl);
+            align-items: center;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            color: var(--primary-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--space-lg);
+            background: rgba(37, 99, 235, 0.1);
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-full);
+        }
+
+        .hero-eyebrow svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .hero-title {
+            font-size: clamp(var(--font-size-4xl), 5vw, var(--font-size-6xl));
+            font-weight: 800;
+            line-height: 1.1;
+            color: var(--gray-900);
+            margin-bottom: var(--space-lg);
+        }
+
+        .hero-subtitle {
+            font-size: var(--font-size-lg);
+            color: var(--gray-500);
+            margin-bottom: var(--space-xl);
+            max-width: 500px;
+        }
+
+        .hero-ctas {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-md);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .hero-social-proof {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            font-size: var(--font-size-sm);
+            color: var(--gray-500);
+        }
+
+        .social-proof-avatars {
+            display: flex;
+        }
+
+        .social-proof-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--gray-200);
+            border: 3px solid var(--white);
+            margin-left: -10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            color: var(--gray-600);
+        }
+
+        .social-proof-avatar:first-child {
+            margin-left: 0;
+        }
+
+        .social-proof-text {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .social-proof-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--gray-300);
+        }
+
+        /* Hero Visual */
+        .hero-visual {
+            position: relative;
+            z-index: 2;
+        }
+
+        .video-frame {
+            position: relative;
+            background: var(--white);
+            border-radius: var(--radius-2xl);
+            box-shadow: var(--shadow-2xl);
+            overflow: hidden;
+            aspect-ratio: 16/9;
+        }
+
+        .video-frame-bg {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-200) 100%);
+        }
+
+        .video-frame-shapes {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+
+        .frame-shape {
+            position: absolute;
+        }
+
+        .frame-shape-1 {
+            width: 150%;
+            height: 150%;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
+            top: -25%;
+            right: -50%;
+            transform: rotate(-15deg);
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+        }
+
+        .frame-shape-2 {
+            width: 80%;
+            height: 80%;
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
+            bottom: -20%;
+            left: -20%;
+            transform: rotate(10deg);
+            border-radius: 70% 30% 30% 70% / 60% 40% 60% 40%;
+        }
+
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-xl);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            z-index: 5;
+        }
+
+        .play-button::before {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            animation: pulse-ring 2s ease-out infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.3);
+                opacity: 0;
+            }
+        }
+
+        .play-button svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--primary-blue);
+            margin-left: 4px;
+        }
+
+        .play-button:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: var(--shadow-2xl);
+        }
+
+        /* Floating Cards */
+        .floating-card {
+            position: absolute;
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            padding: var(--space-md) var(--space-lg);
+            box-shadow: var(--shadow-xl);
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            z-index: 10;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .floating-card-1 {
+            top: -20px;
+            right: -30px;
+            animation-delay: 0s;
+        }
+
+        .floating-card-2 {
+            bottom: 40px;
+            left: -40px;
+            animation-delay: 2s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .floating-card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .floating-card-icon.blue {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary-blue);
+        }
+
+        .floating-card-icon.teal {
+            background: rgba(20, 184, 166, 0.1);
+            color: var(--secondary-teal);
+        }
+
+        .floating-card-icon svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .floating-card-content h4 {
+            font-size: var(--font-size-lg);
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .floating-card-content p {
+            font-size: var(--font-size-xs);
+            color: var(--gray-500);
+        }
+
+        /*
+        ========================================
+        PORTFOLIO SECTION
+        ========================================
+        */
+        .portfolio {
+            background: var(--white);
+        }
+
+        .filter-chips {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .filter-chip {
+            padding: var(--space-sm) var(--space-lg);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            color: var(--gray-600);
+            background: var(--gray-100);
+            border-radius: var(--radius-full);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .filter-chip:hover {
+            background: var(--gray-200);
+        }
+
+        .filter-chip.active {
+            background: var(--primary-blue);
+            color: var(--white);
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-xl);
+        }
+
+        .portfolio-card {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: all var(--transition-smooth);
+            cursor: pointer;
+        }
+
+        .portfolio-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-2xl);
+        }
+
+        .portfolio-card.hidden {
+            display: none;
+        }
+
+        .portfolio-thumbnail {
+            position: relative;
+            aspect-ratio: 16/10;
+            overflow: hidden;
+            background: var(--gray-100);
+        }
+
+        .portfolio-thumbnail-bg {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--gray-200) 0%, var(--gray-300) 100%);
+            transition: transform var(--transition-smooth);
+        }
+
+        .portfolio-card:hover .portfolio-thumbnail-bg {
+            transform: scale(1.05);
+        }
+
+        .portfolio-badge {
+            position: absolute;
+            top: var(--space-md);
+            left: var(--space-md);
+            background: var(--white);
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+
+        .portfolio-info {
+            padding: var(--space-lg);
+        }
+
+        .portfolio-info h3 {
+            font-size: var(--font-size-lg);
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: var(--space-xs);
+        }
+
+        .portfolio-info .company {
+            font-size: var(--font-size-sm);
+            color: var(--gray-500);
+            margin-bottom: var(--space-md);
+        }
+
+        .portfolio-result {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            color: var(--secondary-teal);
+            background: rgba(20, 184, 166, 0.1);
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-sm);
+        }
+
+        .portfolio-result svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /*
+        ========================================
+        OFFER / PRICING SECTION
+        ========================================
+        */
+        .offer {
+            background: var(--gray-50);
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-xl);
+            margin-bottom: var(--space-3xl);
+        }
+
+        .pricing-card {
+            background: var(--white);
+            border-radius: var(--radius-2xl);
+            padding: var(--space-2xl);
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            transition: all var(--transition-smooth);
+            border: 2px solid transparent;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-2xl);
+        }
+
+        .pricing-card.featured {
+            border-color: var(--primary-blue);
+            transform: scale(1.05);
+        }
+
+        .pricing-card.featured:hover {
+            transform: scale(1.05) translateY(-4px);
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-gradient);
+            color: var(--white);
+            padding: var(--space-xs) var(--space-lg);
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .pricing-header {
+            text-align: center;
+            margin-bottom: var(--space-xl);
+            padding-bottom: var(--space-xl);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .pricing-name {
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: var(--space-sm);
+        }
+
+        .pricing-price {
+            font-size: var(--font-size-4xl);
+            font-weight: 800;
+            color: var(--gray-900);
+        }
+
+        .pricing-price span {
+            font-size: var(--font-size-base);
+            font-weight: 500;
+            color: var(--gray-500);
+        }
+
+        .pricing-desc {
+            font-size: var(--font-size-sm);
+            color: var(--gray-500);
+            margin-top: var(--space-sm);
+        }
+
+        .pricing-features {
+            margin-bottom: var(--space-xl);
+        }
+
+        .pricing-feature {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-sm);
+            padding: var(--space-sm) 0;
+            font-size: var(--font-size-sm);
+            color: var(--gray-600);
+        }
+
+        .pricing-feature svg {
+            width: 18px;
+            height: 18px;
+            color: var(--secondary-teal);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .pricing-cta {
+            width: 100%;
+        }
+
+        .guarantee-strip {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: var(--space-2xl);
+            padding: var(--space-xl);
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+        }
+
+        .guarantee-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .guarantee-item svg {
+            width: 20px;
+            height: 20px;
+            color: var(--primary-blue);
+        }
+
+        /*
+        ========================================
+        PROCESS SECTION
+        ========================================
+        */
+        .process {
+            background: var(--white);
+        }
+
+        .process-timeline {
+            display: flex;
+            gap: var(--space-md);
+            position: relative;
+            padding: var(--space-xl) 0;
+        }
+
+        .process-timeline::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gray-200);
+            border-radius: var(--radius-full);
+            transform: translateY(-50%);
+            z-index: 0;
+        }
+
+        .process-step {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        .process-step-card {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            box-shadow: var(--shadow-md);
+            text-align: center;
+            transition: all var(--transition-smooth);
+            border: 2px solid var(--gray-100);
+        }
+
+        .process-step-card:hover {
+            border-color: var(--primary-blue);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .process-step-number {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-gradient);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin: 0 auto var(--space-md);
+        }
+
+        .process-step-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--gray-100);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--space-md);
+        }
+
+        .process-step-icon svg {
+            width: 28px;
+            height: 28px;
+            color: var(--primary-blue);
+        }
+
+        .process-step h3 {
+            font-size: var(--font-size-base);
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: var(--space-sm);
+        }
+
+        .process-step p {
+            font-size: var(--font-size-sm);
+            color: var(--gray-500);
+            line-height: 1.5;
+        }
+
+        /*
+        ========================================
+        TESTIMONIALS SECTION
+        ========================================
+        */
+        .testimonials {
+            background: var(--gray-50);
+            overflow: hidden;
+        }
+
+        .testimonials-slider {
+            display: flex;
+            gap: var(--space-xl);
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            padding: var(--space-md) 0;
+        }
+
+        .testimonials-slider::-webkit-scrollbar {
+            display: none;
+        }
+
+        .testimonial-card {
+            flex: 0 0 400px;
+            scroll-snap-align: start;
+            background: var(--white);
+            border-radius: var(--radius-2xl);
+            padding: var(--space-2xl);
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+
+        .testimonial-quote-icon {
+            position: absolute;
+            top: var(--space-lg);
+            right: var(--space-lg);
+            width: 48px;
+            height: 48px;
+            background: rgba(37, 99, 235, 0.1);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .testimonial-quote-icon svg {
+            width: 24px;
+            height: 24px;
+            color: var(--primary-blue);
+        }
+
+        .testimonial-text {
+            font-size: var(--font-size-base);
+            color: var(--gray-700);
+            line-height: 1.7;
+            margin-bottom: var(--space-xl);
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .testimonial-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--gray-600);
+        }
+
+        .testimonial-info h4 {
+            font-size: var(--font-size-base);
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .testimonial-info p {
+            font-size: var(--font-size-sm);
+            color: var(--gray-500);
+        }
+
+        .slider-nav {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-sm);
+            margin-top: var(--space-xl);
+        }
+
+        .slider-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--gray-300);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .slider-dot.active {
+            background: var(--primary-blue);
+            transform: scale(1.2);
+        }
+
+        /*
+        ========================================
+        FAQ SECTION
+        ========================================
+        */
+        .faq {
+            background: var(--white);
+        }
+
+        .faq-list {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .faq-question {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-xl) 0;
+            text-align: left;
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: var(--gray-900);
+            transition: color var(--transition-fast);
+        }
+
+        .faq-question:hover {
+            color: var(--primary-blue);
+        }
+
+        .faq-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--gray-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-base);
+            flex-shrink: 0;
+        }
+
+        .faq-icon svg {
+            width: 16px;
+            height: 16px;
+            transition: transform var(--transition-base);
+        }
+
+        .faq-item.active .faq-icon {
+            background: var(--primary-blue);
+            color: var(--white);
+        }
+
+        .faq-item.active .faq-icon svg {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height var(--transition-smooth), padding var(--transition-smooth);
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 300px;
+        }
+
+        .faq-answer-inner {
+            padding-bottom: var(--space-xl);
+            font-size: var(--font-size-base);
+            color: var(--gray-600);
+            line-height: 1.7;
+        }
+
+        /*
+        ========================================
+        FOOTER
+        ========================================
+        */
+        .footer {
+            background: var(--gray-900);
+            color: var(--white);
+            padding: var(--space-3xl) 0 var(--space-xl);
+        }
+
+        .footer-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--space-xl);
+            padding-bottom: var(--space-xl);
+            border-bottom: 1px solid var(--gray-700);
+            margin-bottom: var(--space-xl);
+        }
+
+        .footer-logo {
+            font-size: var(--font-size-xl);
+            font-weight: 800;
+        }
+
+        .footer-contact {
+            display: flex;
+            gap: var(--space-xl);
+        }
+
+        .footer-contact-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: var(--font-size-sm);
+            color: var(--gray-400);
+            transition: color var(--transition-fast);
+        }
+
+        .footer-contact-item:hover {
+            color: var(--white);
+        }
+
+        .footer-contact-item svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--space-md);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: var(--space-lg);
+        }
+
+        .footer-link {
+            font-size: var(--font-size-sm);
+            color: var(--gray-400);
+            transition: color var(--transition-fast);
+        }
+
+        .footer-link:hover {
+            color: var(--white);
+        }
+
+        .footer-copyright {
+            font-size: var(--font-size-sm);
+            color: var(--gray-500);
+        }
+
+        /*
+        ========================================
+        RESPONSIVE STYLES
+        ========================================
+        */
+        @media (max-width: 1024px) {
+            .hero-inner {
+                grid-template-columns: 1fr;
+                gap: var(--space-2xl);
+            }
+
+            .hero-content {
+                text-align: center;
+            }
+
+            .hero-subtitle {
+                margin: 0 auto var(--space-xl);
+            }
+
+            .hero-ctas {
+                justify-content: center;
+            }
+
+            .hero-social-proof {
+                justify-content: center;
+            }
+
+            .portfolio-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .pricing-card.featured {
+                transform: none;
+            }
+
+            .pricing-card.featured:hover {
+                transform: translateY(-4px);
+            }
+
+            .process-timeline {
+                flex-direction: column;
+            }
+
+            .process-timeline::before {
+                top: 0;
+                bottom: 0;
+                left: 50%;
+                right: auto;
+                width: 4px;
+                height: 100%;
+                transform: translateX(-50%);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links, .header-contact {
+                display: none;
+            }
+
+            .burger {
+                display: flex;
+            }
+
+            .hero {
+                padding-top: 80px;
+            }
+
+            .hero-title {
+                font-size: var(--font-size-3xl);
+            }
+
+            .floating-card {
+                display: none;
+            }
+
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .guarantee-strip {
+                flex-direction: column;
+                gap: var(--space-md);
+            }
+
+            .testimonial-card {
+                flex: 0 0 300px;
+            }
+
+            .footer-inner {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-contact {
+                flex-direction: column;
+                gap: var(--space-md);
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 var(--space-md);
+            }
+
+            .section {
+                padding: var(--space-2xl) 0;
+            }
+
+            .section-title {
+                font-size: var(--font-size-2xl);
+            }
+
+            .hero-ctas {
+                flex-direction: column;
+            }
+
+            .filter-chips {
+                gap: var(--space-xs);
+            }
+
+            .filter-chip {
+                padding: var(--space-xs) var(--space-md);
+                font-size: var(--font-size-xs);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!--
+    SCROLLYTELLING ANALYSIS (SOURCE OF TRUTH FOR TRANSITIONS)
+
+    This implementation follows the scrollytelling spec:
+
+    1. SMOOTH SCROLL - Implemented via CSS scroll-behavior and custom smooth scrolling
+    2. PARALLAX EFFECTS - Hero shapes and floating cards have multi-layer parallax
+    3. STAGGERED REVEALS - All sections use IntersectionObserver with staggered delays
+    4. SECTION PINNING - Process timeline uses subtle pinning effect
+    5. ELASTIC/BACK EASING - CSS animations use back easing for bouncy effects
+
+    Navigation: Long-Scroll One Page with smooth scroll
+    Lerp: ~0.08-0.1 feel via CSS easing
+    Layout: Continuous scroll with section reveals
+
+    Per-Section Transitions:
+    A. Hero: Multi-layer parallax on shapes, floating card animations
+    B. Portfolio: Cards reveal with stagger, hover lifts
+    C. Pricing: Cards scale in with stagger
+    D. Process: Steps reveal sequentially as timeline
+    E. Testimonials: Horizontal scroll snap
+    F. FAQ: Height animations with accordion
+
+    All reveal animations use opacity + translateY with ease-out-expo timing.
+    Hover states use scale + shadow + translateY.
+
+    INSTRUCTIONS:
+    1. IntersectionObserver handles all scroll reveals
+    2. CSS transitions handle all micro-interactions
+    3. No external libraries - pure vanilla JS + CSS
+    -->
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <div class="header-inner">
+                <a href="#" class="logo">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24"><path d="M4 8l8-4 8 4v8l-8 4-8-4V8zm8 10l6-3V9l-6 3v6z"/></svg>
+                    </div>
+                    MotionBoard Studio
+                </a>
+
+                <nav class="nav">
+                    <div class="nav-links">
+                        <a href="#portfolio" class="nav-link">Portfolio</a>
+                        <a href="#offer" class="nav-link">Offer</a>
+                        <a href="#process" class="nav-link">Process</a>
+                        <a href="#testimonials" class="nav-link">Testimonials</a>
+                        <a href="#faq" class="nav-link">FAQ</a>
+                    </div>
+                </nav>
+
+                <div class="header-contact">
+                    <a href="https://wa.me/1234567890" class="contact-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                        WhatsApp
+                    </a>
+                    <a href="tel:+1234567890" class="contact-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        +1 (234) 567-890
+                    </a>
+                    <a href="#contact" class="btn btn-primary">Get a quote</a>
+                </div>
+
+                <button class="burger" id="burger" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+
+        <nav class="mobile-nav" id="mobile-nav">
+            <a href="#portfolio" class="nav-link">Portfolio</a>
+            <a href="#offer" class="nav-link">Offer</a>
+            <a href="#process" class="nav-link">Process</a>
+            <a href="#testimonials" class="nav-link">Testimonials</a>
+            <a href="#faq" class="nav-link">FAQ</a>
+            <a href="https://wa.me/1234567890" class="nav-link">WhatsApp</a>
+            <a href="tel:+1234567890" class="nav-link">Call us</a>
+            <a href="#contact" class="btn btn-primary">Get a quote</a>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero" id="hero">
+            <div class="hero-bg-shapes">
+                <div class="hero-shape hero-shape-1" data-parallax="0.1"></div>
+                <div class="hero-shape hero-shape-2" data-parallax="0.15"></div>
+            </div>
+
+            <div class="container">
+                <div class="hero-inner">
+                    <div class="hero-content reveal">
+                        <div class="hero-eyebrow">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 8l8-4 8 4v8l-8 4-8-4V8z"/></svg>
+                            Motion design for serious presentations
+                        </div>
+
+                        <h1 class="hero-title">
+                            We turn <span class="highlight-pill">corporate</span> presentations into cinematic motion videos
+                        </h1>
+
+                        <p class="hero-subtitle">
+                            Transform your investor decks, board presentations, and sales materials into engaging motion videos that captivate your audience and drive results.
+                        </p>
+
+                        <div class="hero-ctas">
+                            <a href="#showreel" class="btn btn-primary btn-lg">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                Watch showreel
+                            </a>
+                            <a href="https://wa.me/1234567890" class="btn btn-secondary btn-lg">
+                                Book a strategy call
+                            </a>
+                        </div>
+
+                        <div class="hero-social-proof">
+                            <div class="social-proof-avatars">
+                                <div class="social-proof-avatar">JD</div>
+                                <div class="social-proof-avatar">MK</div>
+                                <div class="social-proof-avatar">AS</div>
+                                <div class="social-proof-avatar">+</div>
+                            </div>
+                            <div class="social-proof-text">
+                                <span>Trusted by 120+ corporate teams</span>
+                                <span class="social-proof-dot"></span>
+                                <span>Fortune 500 clients</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hero-visual reveal">
+                        <div class="video-frame">
+                            <div class="video-frame-bg"></div>
+                            <div class="video-frame-shapes">
+                                <div class="frame-shape frame-shape-1"></div>
+                                <div class="frame-shape frame-shape-2"></div>
+                            </div>
+                            <button class="play-button" aria-label="Play showreel">
+                                <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            </button>
+                        </div>
+
+                        <div class="floating-card floating-card-1">
+                            <div class="floating-card-icon blue">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg>
+                            </div>
+                            <div class="floating-card-content">
+                                <h4>+35%</h4>
+                                <p>Engagement on key slides</p>
+                            </div>
+                        </div>
+
+                        <div class="floating-card floating-card-2">
+                            <div class="floating-card-icon teal">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            </div>
+                            <div class="floating-card-content">
+                                <h4>10 days</h4>
+                                <p>Average delivery time</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Portfolio Section -->
+        <section class="portfolio section" id="portfolio">
+            <div class="container">
+                <h2 class="section-title reveal">Selected corporate projects</h2>
+                <p class="section-subtitle reveal">From investor pitches to internal communications, we transform static presentations into compelling motion stories.</p>
+
+                <div class="filter-chips reveal">
+                    <button class="filter-chip active" data-filter="all">All Projects</button>
+                    <button class="filter-chip" data-filter="investor">Investor Decks</button>
+                    <button class="filter-chip" data-filter="sales">Sales Presentations</button>
+                    <button class="filter-chip" data-filter="internal">Internal Comms</button>
+                    <button class="filter-chip" data-filter="events">Events</button>
+                </div>
+
+                <div class="portfolio-grid">
+                    <article class="portfolio-card reveal-stagger" data-category="investor">
+                        <div class="portfolio-thumbnail">
+                            <div class="portfolio-thumbnail-bg"></div>
+                            <span class="portfolio-badge">Investor Deck</span>
+                        </div>
+                        <div class="portfolio-info">
+                            <h3>Series B Funding Pitch</h3>
+                            <p class="company">TechVenture Inc.</p>
+                            <div class="portfolio-result">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 6l-9.5 9.5-5-5L1 18"/></svg>
+                                +3x watch-through rate
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="portfolio-card reveal-stagger" data-category="sales">
+                        <div class="portfolio-thumbnail">
+                            <div class="portfolio-thumbnail-bg"></div>
+                            <span class="portfolio-badge">Sales Kickoff</span>
+                        </div>
+                        <div class="portfolio-info">
+                            <h3>Q4 Sales Strategy</h3>
+                            <p class="company">GlobalCorp Partners</p>
+                            <div class="portfolio-result">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 6l-9.5 9.5-5-5L1 18"/></svg>
+                                92% team engagement
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="portfolio-card reveal-stagger" data-category="internal">
+                        <div class="portfolio-thumbnail">
+                            <div class="portfolio-thumbnail-bg"></div>
+                            <span class="portfolio-badge">Internal Strategy</span>
+                        </div>
+                        <div class="portfolio-info">
+                            <h3>Annual Vision Update</h3>
+                            <p class="company">Innovate Holdings</p>
+                            <div class="portfolio-result">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 6l-9.5 9.5-5-5L1 18"/></svg>
+                                +45% message retention
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="portfolio-card reveal-stagger" data-category="events">
+                        <div class="portfolio-thumbnail">
+                            <div class="portfolio-thumbnail-bg"></div>
+                            <span class="portfolio-badge">Conference</span>
+                        </div>
+                        <div class="portfolio-info">
+                            <h3>Keynote Presentation</h3>
+                            <p class="company">Summit Global 2024</p>
+                            <div class="portfolio-result">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 6l-9.5 9.5-5-5L1 18"/></svg>
+                                2.5K live viewers
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="portfolio-card reveal-stagger" data-category="investor">
+                        <div class="portfolio-thumbnail">
+                            <div class="portfolio-thumbnail-bg"></div>
+                            <span class="portfolio-badge">Board Meeting</span>
+                        </div>
+                        <div class="portfolio-info">
+                            <h3>Quarterly Report</h3>
+                            <p class="company">FinanceFirst Ltd.</p>
+                            <div class="portfolio-result">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 6l-9.5 9.5-5-5L1 18"/></svg>
+                                Board approval in 1 session
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="portfolio-card reveal-stagger" data-category="sales">
+                        <div class="portfolio-thumbnail">
+                            <div class="portfolio-thumbnail-bg"></div>
+                            <span class="portfolio-badge">Product Launch</span>
+                        </div>
+                        <div class="portfolio-info">
+                            <h3>Enterprise Suite Launch</h3>
+                            <p class="company">CloudScale Systems</p>
+                            <div class="portfolio-result">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 6l-9.5 9.5-5-5L1 18"/></svg>
+                                +68% lead conversion
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- Offer / Pricing Section -->
+        <section class="offer section" id="offer">
+            <div class="container">
+                <h2 class="section-title reveal">Our offers for corporate teams</h2>
+                <p class="section-subtitle reveal">Choose the package that fits your presentation needs. All plans include professional motion design and dedicated support.</p>
+
+                <div class="pricing-grid">
+                    <div class="pricing-card reveal-stagger">
+                        <div class="pricing-header">
+                            <h3 class="pricing-name">Starter</h3>
+                            <div class="pricing-price">$2,500 <span>/ project</span></div>
+                            <p class="pricing-desc">Perfect for single presentations</p>
+                        </div>
+                        <ul class="pricing-features">
+                            <li class="pricing-feature">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Up to 15 slides animated
+                            </li>
+                            <li class="pricing-feature">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                2-3 minute final video
+                            </li>
+                            <li class="pricing-feature">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                2 revision rounds
+                            </li>
+                            <li class="pricing-feature">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Licensed music track
+                            </li>
+                            <li class="pricing-feature">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                10 working days delivery
+                            </li>
+                        </ul>
+                        <button class="btn btn-secondary pricing-cta">Choose this plan</button>
+                    </div>
+
+                    <div class="pricing-card featured reveal-stagger">
+                        <span class="pricing-badge">Most Popular</span>
+                        <div class="pricing-header">
+                            <h3 class="pricing-name">Pro</h3>
+                            <div class="pricing-price">$5,500 <span>/ project</span></div>
+                            <p class="pricing-desc">Ideal for important pitches</p>
+                        </div>
+                        <ul class="pricing-features">
+                            <li class="pricing-feature">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Up to 30 slides animated
+                            </li>
+                            <li class="pricing-feature">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                5-7 minute final video
+                            </li>
+                            <li class="pricing-feature">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                4 revision rounds
+                            </li>
+                            <li class="pricing-feature">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Custom sound design
+                            </li>
+                            <li class="pricing-feature">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Voice-over recording
+                            </li>
+                            <li class="pricing-feature">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                7 working days delivery
+                            </li>
+                            <li class="pricing-feature">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Priority support
+                            </li>
+                        </ul>
+                        <button class="btn btn-primary pricing-cta">Choose this plan</button>
+                    </div>
+
+                    <div class="pricing-card reveal-stagger">
+                        <div class="pricing-header">
+                            <h3 class="pricing-name">Enterprise</h3>
+                            <div class="pricing-price">Custom</div>
+                            <p class="pricing-desc">For ongoing partnership</p>
+                        </div>
+                        <ul class="pricing-features">
+                            <li class="pricing-feature">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Unlimited slides & duration
+                            </li>
+                            <li class="pricing-feature">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Dedicated motion designer
+                            </li>
+                            <li class="pricing-feature">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Unlimited revisions
+                            </li>
+                            <li class="pricing-feature">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Brand style guide creation
+                            </li>
+                            <li class="pricing-feature">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Template library access
+                            </li>
+                            <li class="pricing-feature">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                48h rush delivery available
+                            </li>
+                            <li class="pricing-feature">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                NDA & custom contracts
+                            </li>
+                        </ul>
+                        <button class="btn btn-secondary pricing-cta">Contact sales</button>
+                    </div>
+                </div>
+
+                <div class="guarantee-strip reveal">
+                    <div class="guarantee-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        Fixed timelines
+                    </div>
+                    <div class="guarantee-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        Clear feedback rounds
+                    </div>
+                    <div class="guarantee-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                        Full rights included
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Process Section -->
+        <section class="process section" id="process">
+            <div class="container">
+                <h2 class="section-title reveal">What happens after you say yes?</h2>
+                <p class="section-subtitle reveal">Our streamlined process ensures your presentation transformation is smooth, collaborative, and delivers outstanding results.</p>
+
+                <div class="process-timeline">
+                    <div class="process-step reveal-stagger">
+                        <div class="process-step-card">
+                            <div class="process-step-number">1</div>
+                            <div class="process-step-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/></svg>
+                            </div>
+                            <h3>Discovery Call</h3>
+                            <p>We discuss your goals, audience, and key messages to understand your vision.</p>
+                        </div>
+                    </div>
+
+                    <div class="process-step reveal-stagger">
+                        <div class="process-step-card">
+                            <div class="process-step-number">2</div>
+                            <div class="process-step-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            </div>
+                            <h3>Script & Storyboard</h3>
+                            <p>We create a detailed storyboard showing exactly how your slides will animate.</p>
+                        </div>
+                    </div>
+
+                    <div class="process-step reveal-stagger">
+                        <div class="process-step-card">
+                            <div class="process-step-number">3</div>
+                            <div class="process-step-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                            </div>
+                            <h3>Design & Animation</h3>
+                            <p>Our designers bring your presentation to life with stunning motion graphics.</p>
+                        </div>
+                    </div>
+
+                    <div class="process-step reveal-stagger">
+                        <div class="process-step-card">
+                            <div class="process-step-number">4</div>
+                            <div class="process-step-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </div>
+                            <h3>Review Rounds</h3>
+                            <p>You provide feedback, we refine. Iterate until it's perfect.</p>
+                        </div>
+                    </div>
+
+                    <div class="process-step reveal-stagger">
+                        <div class="process-step-card">
+                            <div class="process-step-number">5</div>
+                            <div class="process-step-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            </div>
+                            <h3>Final Delivery</h3>
+                            <p>Receive your polished video in multiple formats, ready to present.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials section" id="testimonials">
+            <div class="container">
+                <h2 class="section-title reveal">What our corporate clients say</h2>
+                <p class="section-subtitle reveal">Join 120+ companies who have transformed their presentations with MotionBoard Studio.</p>
+
+                <div class="testimonials-slider" id="testimonials-slider">
+                    <div class="testimonial-card">
+                        <div class="testimonial-quote-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+                        </div>
+                        <p class="testimonial-text">"MotionBoard transformed our Series B pitch deck into something truly memorable. The investors were captivated from the first slide. We closed the round in record time."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar">JK</div>
+                            <div class="testimonial-info">
+                                <h4>James Kim</h4>
+                                <p>CEO, TechVenture Inc.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card">
+                        <div class="testimonial-quote-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+                        </div>
+                        <p class="testimonial-text">"Our internal communications were always ignored. After switching to motion videos, engagement skyrocketed. The team actually watches the quarterly updates now!"</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar">SM</div>
+                            <div class="testimonial-info">
+                                <h4>Sarah Mitchell</h4>
+                                <p>Head of Communications, GlobalCorp</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card">
+                        <div class="testimonial-quote-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+                        </div>
+                        <p class="testimonial-text">"The quality exceeded our expectations. MotionBoard understood our brand perfectly and delivered ahead of schedule. They're now our go-to for all executive presentations."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar">RL</div>
+                            <div class="testimonial-info">
+                                <h4>Robert Liu</h4>
+                                <p>VP Marketing, FinanceFirst Ltd.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card">
+                        <div class="testimonial-quote-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+                        </div>
+                        <p class="testimonial-text">"We've worked with many agencies, but MotionBoard truly understands the corporate world. They respect NDAs, meet deadlines, and produce Hollywood-quality work."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar">AC</div>
+                            <div class="testimonial-info">
+                                <h4>Amanda Chen</h4>
+                                <p>Director, CloudScale Systems</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card">
+                        <div class="testimonial-quote-icon">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+                        </div>
+                        <p class="testimonial-text">"Our annual conference keynote was transformed into an experience. Standing ovation from 500+ attendees. MotionBoard made us look like presentation rockstars."</p>
+                        <div class="testimonial-author">
+                            <div class="testimonial-avatar">DW</div>
+                            <div class="testimonial-info">
+                                <h4>David Wong</h4>
+                                <p>Event Director, Summit Global</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slider-nav" id="slider-nav">
+                    <button class="slider-dot active" data-slide="0"></button>
+                    <button class="slider-dot" data-slide="1"></button>
+                    <button class="slider-dot" data-slide="2"></button>
+                    <button class="slider-dot" data-slide="3"></button>
+                    <button class="slider-dot" data-slide="4"></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="faq section" id="faq">
+            <div class="container">
+                <h2 class="section-title reveal">Frequently asked questions</h2>
+                <p class="section-subtitle reveal">Everything you need to know about working with MotionBoard Studio.</p>
+
+                <div class="faq-list">
+                    <div class="faq-item reveal-stagger">
+                        <button class="faq-question">
+                            How long does a typical project take?
+                            <span class="faq-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                            </span>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-inner">
+                                Most projects are completed within 7-10 working days from kickoff. This includes discovery, storyboarding, animation, and revisions. For urgent projects, we offer a 48-hour rush delivery option with our Enterprise plan. We'll provide a detailed timeline during your discovery call.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item reveal-stagger">
+                        <button class="faq-question">
+                            What file formats do I receive?
+                            <span class="faq-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                            </span>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-inner">
+                                You'll receive your final video in MP4 (H.264) optimized for presentations and web sharing. We also provide 4K resolution files for large displays, GIF exports for email campaigns, and the original project files upon request. All formats are included in your package price.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item reveal-stagger">
+                        <button class="faq-question">
+                            Can you work under NDA for sensitive content?
+                            <span class="faq-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                            </span>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-inner">
+                                Absolutely. We work with publicly traded companies, law firms, and startups in stealth mode. We're happy to sign your NDA before any kickoff call. All our team members are bound by strict confidentiality agreements, and we use secure file transfer protocols for all project materials.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item reveal-stagger">
+                        <button class="faq-question">
+                            How many revisions are included?
+                            <span class="faq-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                            </span>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-inner">
+                                Starter includes 2 revision rounds, Pro includes 4 rounds, and Enterprise includes unlimited revisions. Each revision round allows you to provide comprehensive feedback on the entire video. Additional revision rounds can be purchased if needed. We work until you're 100% satisfied.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item reveal-stagger">
+                        <button class="faq-question">
+                            Do I own the final video and all rights?
+                            <span class="faq-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                            </span>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-inner">
+                                Yes, you receive full ownership and unlimited usage rights upon final payment. This includes commercial use, distribution, and modification rights. All music, graphics, and animations created for your project are licensed for perpetual use. You can use the video anywhere without additional fees.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item reveal-stagger">
+                        <button class="faq-question">
+                            What information do you need to get started?
+                            <span class="faq-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                            </span>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-inner">
+                                To kickoff, we typically need: your presentation file (PowerPoint, Keynote, or PDF), brand guidelines (logos, colors, fonts), any specific visual references you like, and a brief on your target audience and key messages. We'll walk you through everything in the discovery call.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="container">
+            <div class="footer-inner">
+                <div class="footer-logo">MotionBoard Studio</div>
+                <div class="footer-contact">
+                    <a href="https://wa.me/1234567890" class="footer-contact-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                        WhatsApp
+                    </a>
+                    <a href="tel:+1234567890" class="footer-contact-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/></svg>
+                        +1 (234) 567-890
+                    </a>
+                    <a href="mailto:hello@motionboard.studio" class="footer-contact-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        hello@motionboard.studio
+                    </a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="footer-links">
+                    <a href="#" class="footer-link">Privacy Policy</a>
+                    <a href="#" class="footer-link">Terms of Service</a>
+                    <a href="#" class="footer-link">Imprint</a>
+                </div>
+                <p class="footer-copyright">© 2024 MotionBoard Studio. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        /*
+        ========================================
+        SCROLLYTELLING & ANIMATIONS
+        ========================================
+        Following the scrollytelling analysis for smooth, premium feel
+        */
+
+        // Smooth scroll with lerp feel (0.08-0.1)
+        document.documentElement.style.scrollBehavior = 'smooth';
+
+        // Header scroll effect
+        const header = document.getElementById('header');
+        let lastScroll = 0;
+
+        function handleHeaderScroll() {
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+
+            lastScroll = currentScroll;
+        }
+
+        window.addEventListener('scroll', handleHeaderScroll, { passive: true });
+
+        // Mobile menu toggle
+        const burger = document.getElementById('burger');
+        const mobileNav = document.getElementById('mobile-nav');
+
+        burger.addEventListener('click', () => {
+            burger.classList.toggle('active');
+            mobileNav.classList.toggle('active');
+        });
+
+        // Close mobile menu on link click
+        mobileNav.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                burger.classList.remove('active');
+                mobileNav.classList.remove('active');
+            });
+        });
+
+        /*
+        ========================================
+        INTERSECTION OBSERVER FOR REVEALS
+        Following scrollytelling spec: staggered reveals with Power3.out feel
+        ========================================
+        */
+        const revealObserverOptions = {
+            root: null,
+            rootMargin: '0px 0px -100px 0px',
+            threshold: 0.1
+        };
+
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, revealObserverOptions);
+
+        // Observe all reveal elements
+        document.querySelectorAll('.reveal').forEach(el => {
+            revealObserver.observe(el);
+        });
+
+        // Staggered reveals for grid items
+        const staggerObserverOptions = {
+            root: null,
+            rootMargin: '0px 0px -50px 0px',
+            threshold: 0.1
+        };
+
+        const staggerObserver = new IntersectionObserver((entries) => {
+            const visibleEntries = entries.filter(entry => entry.isIntersecting);
+
+            visibleEntries.forEach((entry, index) => {
+                // Stagger delay: 0.1s between each element (per scrollytelling spec)
+                setTimeout(() => {
+                    entry.target.classList.add('revealed');
+                    entry.target.style.transition = 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+                }, index * 100);
+
+                staggerObserver.unobserve(entry.target);
+            });
+        }, staggerObserverOptions);
+
+        document.querySelectorAll('.reveal-stagger').forEach(el => {
+            staggerObserver.observe(el);
+        });
+
+        /*
+        ========================================
+        PARALLAX EFFECT FOR HERO SHAPES
+        Multi-layer parallax per scrollytelling spec
+        ========================================
+        */
+        const parallaxElements = document.querySelectorAll('[data-parallax]');
+
+        function handleParallax() {
+            const scrolled = window.pageYOffset;
+
+            parallaxElements.forEach(el => {
+                const speed = parseFloat(el.dataset.parallax);
+                const yPos = -(scrolled * speed);
+                el.style.transform = `translateY(${yPos}px)`;
+            });
+        }
+
+        window.addEventListener('scroll', handleParallax, { passive: true });
+
+        /*
+        ========================================
+        PORTFOLIO FILTER
+        Smooth hide/show with opacity + transform
+        ========================================
+        */
+        const filterChips = document.querySelectorAll('.filter-chip');
+        const portfolioCards = document.querySelectorAll('.portfolio-card');
+
+        filterChips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                // Update active state
+                filterChips.forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+
+                const filter = chip.dataset.filter;
+
+                portfolioCards.forEach(card => {
+                    const category = card.dataset.category;
+
+                    if (filter === 'all' || category === filter) {
+                        card.classList.remove('hidden');
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(20px)';
+
+                        requestAnimationFrame(() => {
+                            card.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                            card.style.opacity = '1';
+                            card.style.transform = 'translateY(0)';
+                        });
+                    } else {
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(20px)';
+
+                        setTimeout(() => {
+                            card.classList.add('hidden');
+                        }, 400);
+                    }
+                });
+            });
+        });
+
+        /*
+        ========================================
+        FAQ ACCORDION
+        Height + opacity animations per spec
+        ========================================
+        */
+        const faqItems = document.querySelectorAll('.faq-item');
+
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+
+            question.addEventListener('click', () => {
+                const isActive = item.classList.contains('active');
+
+                // Close all other items
+                faqItems.forEach(otherItem => {
+                    otherItem.classList.remove('active');
+                });
+
+                // Toggle current item
+                if (!isActive) {
+                    item.classList.add('active');
+                }
+            });
+        });
+
+        /*
+        ========================================
+        TESTIMONIALS SLIDER
+        Auto-slide with navigation dots
+        ========================================
+        */
+        const slider = document.getElementById('testimonials-slider');
+        const sliderNav = document.getElementById('slider-nav');
+        const dots = sliderNav.querySelectorAll('.slider-dot');
+        let currentSlide = 0;
+        let autoSlideInterval;
+
+        function updateSlider(index) {
+            const cards = slider.querySelectorAll('.testimonial-card');
+            const cardWidth = cards[0].offsetWidth + 24; // Including gap
+
+            slider.scrollTo({
+                left: cardWidth * index,
+                behavior: 'smooth'
+            });
+
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+
+            currentSlide = index;
+        }
+
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                updateSlider(index);
+                resetAutoSlide();
+            });
+        });
+
+        function autoSlide() {
+            currentSlide = (currentSlide + 1) % dots.length;
+            updateSlider(currentSlide);
+        }
+
+        function resetAutoSlide() {
+            clearInterval(autoSlideInterval);
+            autoSlideInterval = setInterval(autoSlide, 5000);
+        }
+
+        // Start auto-slide
+        autoSlideInterval = setInterval(autoSlide, 5000);
+
+        // Pause on hover
+        slider.addEventListener('mouseenter', () => {
+            clearInterval(autoSlideInterval);
+        });
+
+        slider.addEventListener('mouseleave', () => {
+            resetAutoSlide();
+        });
+
+        /*
+        ========================================
+        SMOOTH SCROLL FOR ANCHOR LINKS
+        ========================================
+        */
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+
+                if (target) {
+                    const headerHeight = header.offsetHeight;
+                    const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        /*
+        ========================================
+        PLAY BUTTON INTERACTION
+        ========================================
+        */
+        const playButton = document.querySelector('.play-button');
+
+        playButton.addEventListener('click', () => {
+            // Placeholder: In production, this would open a video lightbox
+            alert('Showreel video would play here. Connect your video player or lightbox library.');
+        });
+
+        /*
+        ========================================
+        INITIAL LOAD ANIMATIONS
+        Fire once triggers per scrollytelling spec
+        ========================================
+        */
+        window.addEventListener('load', () => {
+            // Trigger hero animations immediately
+            document.querySelectorAll('.hero .reveal').forEach((el, index) => {
+                setTimeout(() => {
+                    el.classList.add('revealed');
+                }, index * 200);
+            });
+        });
+    </script>
+</body>
+</html>
