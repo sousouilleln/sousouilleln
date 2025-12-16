@@ -140,17 +140,15 @@
             position: relative;
             display: flex;
             align-items: center;
+            justify-content: center;
             padding: 8rem 2rem 4rem;
             overflow: hidden;
         }
 
         .hero-container {
-            max-width: 1400px;
+            max-width: 900px;
             margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            align-items: center;
+            text-align: center;
             position: relative;
             z-index: 1;
         }
@@ -189,8 +187,8 @@
         .hero-subtitle {
             font-size: 1.1rem;
             color: rgba(255, 255, 255, 0.8);
-            max-width: 500px;
-            margin-bottom: 2rem;
+            max-width: 600px;
+            margin: 0 auto 2rem;
             line-height: 1.7;
         }
 
@@ -198,6 +196,19 @@
             display: flex;
             gap: 1rem;
             flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* Showreel Section */
+        #showreel {
+            position: relative;
+            z-index: 1;
+            padding: 4rem 2rem 6rem;
+        }
+
+        .showreel-container {
+            max-width: 1000px;
+            margin: 0 auto;
         }
 
         .btn {
@@ -242,14 +253,10 @@
             transform: translateY(-2px);
         }
 
-        .hero-video {
-            position: relative;
-        }
-
         .video-frame {
             background: linear-gradient(135deg, var(--dark-blue), var(--darker-blue));
             border-radius: 24px;
-            aspect-ratio: 16/10;
+            aspect-ratio: 16/9;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -257,6 +264,12 @@
             overflow: hidden;
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
             border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .video-frame:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
         }
 
         .video-frame::before {
@@ -267,8 +280,8 @@
         }
 
         .play-button {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             background: var(--neon-green);
             border-radius: 50%;
             display: flex;
@@ -281,14 +294,14 @@
 
         .play-button:hover {
             transform: scale(1.1);
-            box-shadow: 0 0 40px rgba(191, 255, 0, 0.5);
+            box-shadow: 0 0 60px rgba(191, 255, 0, 0.5);
         }
 
         .play-button svg {
-            width: 30px;
-            height: 30px;
+            width: 40px;
+            height: 40px;
             fill: var(--dark-blue);
-            margin-left: 4px;
+            margin-left: 6px;
         }
 
         .video-label {
@@ -301,6 +314,19 @@
             border-radius: 20px;
             font-size: 0.85rem;
             font-weight: 600;
+        }
+
+        .showreel-title {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .showreel-title h2 {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255, 255, 255, 0.9);
         }
 
         /* Floating Tiles */
@@ -316,21 +342,27 @@
         }
 
         .tile-1 {
-            top: 15%;
-            right: 45%;
+            top: 20%;
+            left: 5%;
             animation-delay: 0s;
         }
 
         .tile-2 {
-            bottom: 25%;
-            left: 45%;
+            top: 30%;
+            right: 5%;
             animation-delay: -2s;
         }
 
         .tile-3 {
-            top: 60%;
-            right: 5%;
+            bottom: 20%;
+            left: 10%;
             animation-delay: -4s;
+        }
+
+        .tile-4 {
+            bottom: 25%;
+            right: 8%;
+            animation-delay: -3s;
         }
 
         .tile-avatar {
@@ -907,31 +939,16 @@
 
         /* Responsive Design */
         @media (max-width: 1024px) {
-            .hero-container {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-
-            .hero-subtitle {
-                margin-left: auto;
-                margin-right: auto;
-            }
-
-            .hero-buttons {
-                justify-content: center;
-            }
-
-            .hero-video {
-                max-width: 600px;
-                margin: 0 auto;
-            }
-
             .floating-tile {
                 display: none;
             }
 
             .arrow-svg {
                 display: none;
+            }
+
+            .showreel-container {
+                max-width: 90%;
             }
 
             .portfolio-grid,
@@ -1091,19 +1108,11 @@
                     We transform static corporate presentations into dynamic, engaging video experiences that captivate your audience and elevate your brand story.
                 </p>
                 <div class="hero-buttons">
-                    <a href="#portfolio" class="btn btn-primary">
+                    <a href="#showreel" class="btn btn-primary">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                         Watch Showreel
                     </a>
                     <a href="#offer" class="btn btn-secondary">Book a Call</a>
-                </div>
-            </div>
-            <div class="hero-video">
-                <div class="video-frame">
-                    <div class="play-button" role="button" aria-label="Play video" tabindex="0">
-                        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                    </div>
-                    <span class="video-label">Agency Showreel</span>
                 </div>
             </div>
         </div>
@@ -1136,6 +1145,15 @@
                 </div>
             </div>
         </div>
+        <div class="floating-tile tile-4">
+            <div class="tile-avatar">
+                <div class="avatar-circle"></div>
+                <div class="avatar-info">
+                    <strong>500+ Videos</strong>
+                    <span>Delivered</span>
+                </div>
+            </div>
+        </div>
 
         <!-- Arrows -->
         <svg class="arrow-svg arrow-1" width="80" height="60" viewBox="0 0 80 60">
@@ -1146,6 +1164,21 @@
             <path d="M5 40 Q 30 5, 55 25" stroke="#BFFF00" stroke-width="3" fill="none" stroke-linecap="round"/>
             <path d="M48 18 L 55 25 L 46 30" stroke="#BFFF00" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
+    </section>
+
+    <!-- Showreel Section -->
+    <section id="showreel">
+        <div class="showreel-container">
+            <div class="showreel-title">
+                <h2>Watch Our Showreel</h2>
+            </div>
+            <div class="video-frame">
+                <div class="play-button" role="button" aria-label="Play video" tabindex="0">
+                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+                <span class="video-label">Agency Showreel 2024</span>
+            </div>
+        </div>
     </section>
 
     <!-- Portfolio Section -->
