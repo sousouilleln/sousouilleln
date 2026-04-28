@@ -1,0 +1,13 @@
+# --- Lot 1 : Fondations + sources de base ---
+requests>=2.31.0
+feedparser>=6.0.10
+pytrends>=4.9.2
+PyYAML>=6.0.1
+python-dotenv>=1.0.0
+praw>=7.7.1                # optionnel : utilisé si REDDIT_CLIENT_ID/SECRET sont fournis,
+                           # sinon le module Reddit bascule automatiquement sur l'API JSON publique.
+
+# --- Lots ultérieurs (filtrage sémantique) ---
+# Décommenter au Lot 3 :
+# sentence-transformers>=2.7.0
+# numpy>=1.26.0

@@ -1,0 +1,343 @@
+# =============================================================================
+# WiXplain Veille — Fichier de configuration unique
+# =============================================================================
+# Toute la configuration métier vit ici. Modifie ce fichier sans toucher au code.
+# Les sections marquées [Lot N] ne sont consommées qu'à partir du lot indiqué ;
+# elles sont déjà présentes pour que tu voies l'ensemble dès maintenant.
+# =============================================================================
+
+# Chemins (relatifs au dossier wixplain_veille/) — OS-agnostique.
+paths:
+  data_dir: "data"
+  db_file: "data/veille.db"
+  digests_dir: "data/digests"
+
+# -----------------------------------------------------------------------------
+# Activation des sources : passe à false pour en désactiver une sans rien casser.
+# -----------------------------------------------------------------------------
+sources_enabled:
+  reddit: true
+  google_news: true
+  google_trends: true
+  hackernews: false       # [Lot 2]
+  indiehackers: false     # [Lot 2]
+  rss: false              # [Lot 2]
+
+# -----------------------------------------------------------------------------
+# REDDIT
+# -----------------------------------------------------------------------------
+reddit:
+  # Période de recherche : "week" | "month" | "year"
+  period: "week"
+
+  # Limite de posts par requête (top-de-sub OU recherche site-wide).
+  # Reddit plafonne à 100 par requête.
+  posts_per_query: 25
+
+  # Nombre max de posts conservés par subreddit après dédup interne.
+  max_posts_per_subreddit: 40
+
+  # Nombre de mots-clés (les premiers de la liste `keywords`) utilisés pour la
+  # recherche site-wide en complément du top-de-sub. Plus c'est haut, plus on
+  # capte de posts hors-liste de subs, mais plus de requêtes.
+  top_keywords_for_search: 8
+
+  # Pour chaque post jugé suffisamment intéressant (cf. seuils ci-dessous),
+  # on récupère les commentaires top-N (triés par score, profondeur 1 uniquement).
+  fetch_comments: true
+  comments_per_post: 8
+
+  # Seuils minimaux pour qu'un post déclenche la récupération de ses commentaires.
+  # (filtrage grossier au Lot 1 ; sera remplacé par le score sémantique au Lot 3)
+  comment_fetch_min_score: 3
+  comment_fetch_min_comments: 2
+
+  # Délai entre deux requêtes (secondes) — politesse rate-limit.
+  request_delay_seconds: 1.5
+
+  # Liste exhaustive des subreddits à scanner.
+  # Justification : où traînent les fondateurs SaaS qui galèrent à convertir,
+  # plus la périphérie design/CRO/copy qui parle de leur problème.
+  subreddits:
+    # Cœur SaaS / fondateurs
+    - SaaS
+    - startups
+    - Entrepreneur
+    - EntrepreneurRideAlong
+    - indiehackers
+    - smallbusiness
+    - growmybusiness
+    - kickstarter
+    # Marketing / acquisition / conversion
+    - marketing
+    - digital_marketing
+    - SaaSMarketing
+    - bigseo
+    - PPC
+    - FacebookAds
+    - GoogleAdsense
+    - content_marketing
+    # CRO / landing / copy
+    - LandingPage
+    - CRO
+    - copywriting
+    - conversionrate
+    # Design / UX (conversion = aussi un pb de design)
+    - webdesign
+    - web_design
+    - UI_Design
+    - UXDesign
+    - userexperience
+    # Sales / B2B
+    - sales
+    - B2BSaaS
+    # Product / management
+    - ProductManagement
+    - product_design
+    # Freelance / agences (concurrents indirects, langage similaire)
+    - freelance
+    - agency
+    # IA / vidéo (pour capter les outils émergents)
+    - ArtificialIntelligence
+    - aivideo
+
+  # Mots-clés de recherche injectés dans Reddit search (FR + EN).
+  # On boucle sur (subreddit × keyword) avec dédup par URL.
+  keywords:
+    # EN — problèmes core ICP
+    - "landing page not converting"
+    - "homepage not converting"
+    - "low conversion rate"
+    - "visitors don't convert"
+    - "explainer video"
+    - "product video"
+    - "demo video"
+    - "SaaS homepage"
+    - "SaaS landing"
+    - "messaging clarity"
+    - "value proposition"
+    - "people don't get my product"
+    - "wasted ad spend"
+    - "wasted on ads"
+    # FR — problèmes core ICP
+    - "vidéo explicative"
+    - "page de vente"
+    - "landing page"
+    - "convertit pas"
+    - "taux de conversion"
+    - "personne ne comprend"
+    - "expliquer mon produit"
+
+# -----------------------------------------------------------------------------
+# GOOGLE NEWS
+# -----------------------------------------------------------------------------
+google_news:
+  # Combinaisons (langue, pays, ceid) à interroger en parallèle.
+  locales:
+    - { hl: "fr", gl: "FR", ceid: "FR:fr" }
+    - { hl: "en", gl: "US", ceid: "US:en" }
+
+  # Limite par requête.
+  results_per_query: 8
+
+  queries:
+    # Vidéo & explicative
+    - "explainer video SaaS B2B"
+    - "product video marketing SaaS"
+    - "vidéo explicative SaaS"
+    - "motion design B2B"
+    # CRO / conversion
+    - "landing page conversion startup"
+    - "SaaS conversion rate benchmark"
+    - "CRO SaaS"
+    # Levées FR (trigger d'achat #1)
+    - "levée de fonds SaaS France"
+    - "Series A SaaS France"
+    - "seed SaaS France"
+    # Outils IA vidéo
+    - "AI video tool launch"
+    - "Runway Veo Sora Pika"
+
+# -----------------------------------------------------------------------------
+# GOOGLE TRENDS
+# -----------------------------------------------------------------------------
+google_trends:
+  timeframe: "now 7-d"
+  geo_main: "FR"
+  geo_world: ""
+  keywords:
+    - "explainer video"
+    - "SaaS landing page"
+    - "product demo video"
+    - "vidéo explicative"
+  related_queries_for: 2     # nb de mots-clés sur lesquels on récupère les "related"
+
+# -----------------------------------------------------------------------------
+# [Lot 2] HACKER NEWS — via Algolia HN API (gratuit, illimité)
+# -----------------------------------------------------------------------------
+hackernews:
+  queries:
+    - "SaaS"
+    - "explainer video"
+    - "landing page"
+    - "conversion rate"
+    - "Series A"
+  results_per_query: 20
+  min_points: 10
+
+# -----------------------------------------------------------------------------
+# [Lot 2] INDIE HACKERS
+# -----------------------------------------------------------------------------
+indiehackers:
+  sections:
+    - "/products"
+    - "/post/popular"
+  max_items: 50
+
+# -----------------------------------------------------------------------------
+# [Lot 2] RSS — newsletters, blogs, médias FR
+# -----------------------------------------------------------------------------
+rss:
+  feeds:
+    # Growth / CRO / SaaS (EN)
+    - { name: "Lenny's Newsletter", url: "https://www.lennysnewsletter.com/feed", category: "growth" }
+    - { name: "Demand Curve", url: "https://www.demandcurve.com/feed.xml", category: "growth" }
+    - { name: "Marketing Examined", url: "https://www.marketingexamined.com/blog?format=rss", category: "growth" }
+    - { name: "GrowthHackers", url: "https://growthhackers.com/feed", category: "growth" }
+    - { name: "CXL", url: "https://cxl.com/blog/feed/", category: "cro" }
+    - { name: "Unbounce blog", url: "https://unbounce.com/feed/", category: "cro" }
+    # Actu start-up FR
+    - { name: "Maddyness", url: "https://www.maddyness.com/feed/", category: "fr_news" }
+    - { name: "FrenchWeb", url: "https://www.frenchweb.fr/feed", category: "fr_news" }
+    - { name: "Les Echos Start", url: "https://services.lesechos.fr/rss/les-echos-start.xml", category: "fr_news" }
+    - { name: "EU-Startups", url: "https://www.eu-startups.com/feed/", category: "fr_news" }
+    - { name: "Sifted", url: "https://sifted.eu/feed/", category: "fr_news" }
+
+# -----------------------------------------------------------------------------
+# [Lot 3] PAIN PATTERNS — regex de détection rapide du langage de souffrance ICP
+# -----------------------------------------------------------------------------
+pain_patterns:
+  en:
+    - "(?i)i'?m struggling"
+    - "(?i)can'?t figure out why"
+    - "(?i)nobody (converts|signs up|buys)"
+    - "(?i)(wasted|burned|burnt) .{0,30}(ads?|adwords|google ads|facebook ads)"
+    - "(?i)homepage (isn'?t|is not|not) (converting|working)"
+    - "(?i)visitors (don'?t|do not) (get|understand)"
+    - "(?i)i tried .{0,40} but"
+    - "(?i)frustrating"
+    - "(?i)stuck on"
+    - "(?i)no one (gets|understands) (my )?(product|saas)"
+    - "(?i)low conversion"
+    - "(?i)(can'?t|cannot) explain"
+  fr:
+    - "(?i)ma landing .{0,30}(convertit pas|marche pas)"
+    - "(?i)je comprends pas pourquoi"
+    - "(?i)(j'?ai claqué|gaspillé) .{0,40}(ads?|pub)"
+    - "(?i)personne (ne )?(comprend|s'?inscrit|achète)"
+    - "(?i)mon (produit|saas) (n'est pas|est pas) clair"
+    - "(?i)(galère|j'?en chie) .{0,40}(landing|conversion|site)"
+    - "(?i)taux de conversion .{0,20}(faible|naze|pas terrible)"
+    - "(?i)visiteurs .{0,30}(comprennent pas|partent|repartent)"
+    - "(?i)expliquer mon produit"
+
+# -----------------------------------------------------------------------------
+# [Lot 3] SCORING & SEUILS
+# -----------------------------------------------------------------------------
+scoring:
+  weight_pain_regex: 0.4         # poids du score regex (boost rapide)
+  weight_pain_semantic: 0.3      # poids embedding vs description "pain ICP"
+  weight_icp_semantic: 0.3       # poids embedding vs description Thomas
+  threshold_keep: 0.45           # en dessous, l'item est jeté
+  embedding_model: "paraphrase-multilingual-MiniLM-L12-v2"
+
+# -----------------------------------------------------------------------------
+# [Lot 4] ICP — résumé textuel utilisé comme cible sémantique
+# -----------------------------------------------------------------------------
+icp_description: |
+  Fondateur SaaS B2B francophone ou anglophone, 18-35 ans, post-seed ou début Series A.
+  Il dépense en acquisition (Google Ads, SEO, content) mais sa landing page convertit
+  à 2-4% au lieu de 10%+. Les visiteurs ne comprennent pas son produit en 60 secondes
+  et repartent. Il est frustré d'être incompris, voit ses concurrents mieux financés
+  avec des sites qui font pro. Il cherche à clarifier son message, améliorer sa
+  conversion, faire une vidéo explicative, mieux pitcher son produit, mieux
+  storyteller ce qu'il fait. ACV 500-15000€, ARR 100K-1M€, équipe 3-20 personnes.
+
+pain_description: |
+  Frustration d'avoir un produit que personne ne comprend en 10 secondes.
+  Sentiment de gaspiller son budget marketing en acquisition qui ne convertit pas.
+  Stress devant les investisseurs, impression d'avoir un side project malgré
+  des clients payants. Difficulté à expliquer simplement, à pitcher, à raconter
+  une histoire qui résonne. Galère avec sa homepage, son onboarding, ses démos.
+
+# -----------------------------------------------------------------------------
+# [Lot 4] CLUSTERS — chaque cluster a un nom + une description sémantique cible
+# -----------------------------------------------------------------------------
+clusters:
+  - key: "clarte_message"
+    name: "Clarté de message / compréhension produit"
+    description: >
+      Difficulté à expliquer simplement ce que fait le produit, jargon, message
+      flou, visiteurs qui ne comprennent pas en 10 secondes, manque de clarté
+      sur la value proposition.
+  - key: "conversion_landing"
+    name: "Conversion landing page"
+    description: >
+      Taux de conversion landing page faible, optimisation CRO, A/B test, hero,
+      CTA, structure de page, signup flow, friction inscription.
+  - key: "video_scriptwriting"
+    name: "Vidéo explicative / scriptwriting"
+    description: >
+      Vidéo explicative SaaS, demo video, motion design, scriptwriting, hook
+      vidéo, voice-over, animation, durée 60 secondes, narration.
+  - key: "acquisition_gaspillee"
+    name: "Acquisition gaspillée (ads, SEO sans ROI)"
+    description: >
+      Budget gaspillé en Google Ads, Facebook Ads, SEO, content marketing qui
+      ne convertit pas, CAC trop élevé, pas de ROI, ads qui drainent le cash.
+  - key: "pitching_storytelling"
+    name: "Pitching / storytelling SaaS"
+    description: >
+      Pitch deck, storytelling produit, présentation investisseurs, narration
+      startup, comment raconter son produit, elevator pitch, démo client.
+  - key: "outils_stack"
+    name: "Outils & stack SaaS"
+    description: >
+      Outils SaaS, stack tech, choix d'outil marketing, no-code, Webflow,
+      Framer, Unbounce, comparaison de plateformes, intégration outils.
+  - key: "tendances_ia_video"
+    name: "Tendances IA & vidéo"
+    description: >
+      Outils vidéo IA, Runway, Sora, Veo, Pika, HeyGen, Synthesia, génération
+      vidéo IA, automatisation création vidéo, AI motion design, nouveautés.
+
+# -----------------------------------------------------------------------------
+# [Lot 4] DÉTECTION DE TRIGGERS D'ACHAT
+# -----------------------------------------------------------------------------
+triggers:
+  fundraising_fr:
+    # On ne garde un article que si TOUTES les listes ci-dessous matchent (au moins 1 hit).
+    money_patterns:
+      - "(?i)\\b\\d+([\\.,]\\d+)?\\s*(M|millions?)\\s*(€|eur|euros?)"
+      - "(?i)\\b\\d+([\\.,]\\d+)?\\s*(k|K)\\s*(€|eur|euros?)"
+    action_patterns:
+      - "(?i)\\bl[èe]ve\\b"
+      - "(?i)bouclé .{0,15}(tour|seed|series)"
+      - "(?i)closed (a )?(seed|series)"
+    geo_patterns:
+      - "(?i)\\bfran[çc]aise?\\b"
+      - "(?i)\\bparis\\b|\\blyon\\b|\\bbordeaux\\b|\\bnantes\\b|\\btoulouse\\b"
+
+  new_tool_launch:
+    keywords:
+      - "lance"
+      - "launch"
+      - "introduces"
+      - "releases"
+      - "presents"
+    categories:
+      - "video"
+      - "AI"
+      - "landing"
+      - "scriptwriting"
+      - "explainer"

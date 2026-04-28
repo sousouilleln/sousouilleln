@@ -1,0 +1,16 @@
+# Données locales (générées par les runs)
+data/veille.db
+data/veille.db-wal
+data/veille.db-shm
+data/digests/
+
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env.local
