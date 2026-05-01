@@ -124,11 +124,15 @@
   <div class="card">
     <div class="toolbar">
       <button id="open-search" class="primary" type="button">Ouvrir la recherche (posts récents)</button>
+      <button id="link-file" class="ghost" type="button" hidden>Lier un fichier de sauvegarde</button>
+      <button id="reconnect-file" class="ghost" type="button" hidden>Reconnecter la sauvegarde</button>
+      <button id="unlink-file" class="danger" type="button" hidden>Délier</button>
       <button id="export" class="ghost" type="button">Exporter</button>
       <button id="import" class="ghost" type="button">Importer</button>
       <input id="import-file" type="file" accept="application/json" hidden />
       <span class="count" id="count"></span>
     </div>
+    <div id="sync-status" class="help"></div>
     <div class="help">
       Le bouton ouvre <code>linkedin.com/search/results/content/</code> avec tous les profils de ta liste en filtre <em>From member</em>, triés par date.
     </div>
@@ -145,11 +149,94 @@
   const STORAGE_KEY = "linkedin-feed-opener:profiles";
   const $ = (id) => document.getElementById(id);
 
-  const load = () => {
+  const loadLocal = () => {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
     catch { return []; }
   };
-  const save = (profiles) => localStorage.setItem(STORAGE_KEY, JSON.stringify(profiles));
+  const saveLocal = (profiles) => localStorage.setItem(STORAGE_KEY, JSON.stringify(profiles));
+
+  // Persist a single FileSystemFileHandle in IndexedDB so the link survives reloads.
+  const HANDLE_DB = "linkedin-feed-opener";
+  const HANDLE_STORE = "handles";
+  const HANDLE_KEY = "backup";
+  const idbOpen = () => new Promise((resolve, reject) => {
+    const req = indexedDB.open(HANDLE_DB, 1);
+    req.onupgradeneeded = () => req.result.createObjectStore(HANDLE_STORE);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+  const idbCall = (mode, fn) => idbOpen().then((db) => new Promise((resolve, reject) => {
+    const tx = db.transaction(HANDLE_STORE, mode);
+    const store = tx.objectStore(HANDLE_STORE);
+    const req = fn(store);
+    tx.oncomplete = () => resolve(req && req.result);
+    tx.onerror = () => reject(tx.error);
+  }));
+  const idbGetHandle = () => idbCall("readonly", (s) => s.get(HANDLE_KEY));
+  const idbSetHandle = (h) => idbCall("readwrite", (s) => s.put(h, HANDLE_KEY));
+  const idbDelHandle = () => idbCall("readwrite", (s) => s.delete(HANDLE_KEY));
+
+  const fsApiAvailable = typeof window.showSaveFilePicker === "function";
+  let fileHandle = null;
+  let writeChain = Promise.resolve();
+
+  const ensurePermission = async (handle, mode = "readwrite") => {
+    if (!handle.queryPermission) return true;
+    if ((await handle.queryPermission({ mode })) === "granted") return true;
+    return (await handle.requestPermission({ mode })) === "granted";
+  };
+
+  const readFromFile = async (handle) => {
+    const file = await handle.getFile();
+    const text = (await file.text()).trim();
+    if (!text) return [];
+    const data = JSON.parse(text);
+    if (!Array.isArray(data)) throw new Error("format");
+    return data
+      .map((p) => p && typeof p.name === "string"
+        ? { name: p.name.trim(), urn: parseUrn(p.urn || "") }
+        : null)
+      .filter((p) => p && p.name && p.urn);
+  };
+
+  const writeToFile = (data) => {
+    if (!fileHandle) return;
+    writeChain = writeChain.then(async () => {
+      try {
+        const writable = await fileHandle.createWritable();
+        await writable.write(JSON.stringify(data, null, 2));
+        await writable.close();
+      } catch (err) {
+        console.warn("File write failed", err);
+      }
+    });
+    return writeChain;
+  };
+
+  const setStatus = (text, hint = "") => {
+    const el = $("sync-status");
+    el.textContent = text + (hint ? "  " + hint : "");
+  };
+
+  const refreshSyncButtons = (state) => {
+    $("link-file").hidden = !fsApiAvailable || state === "linked" || state === "needs-permission";
+    $("reconnect-file").hidden = state !== "needs-permission";
+    $("unlink-file").hidden = state !== "linked" && state !== "needs-permission";
+    if (!fsApiAvailable) {
+      setStatus("Sauvegarde locale uniquement (ce navigateur ne supporte pas la liaison de fichier).");
+    } else if (state === "linked") {
+      setStatus(`Sauvegarde liée à « ${fileHandle.name} ». Les modifications sont écrites automatiquement.`);
+    } else if (state === "needs-permission") {
+      setStatus(`Sauvegarde « ${fileHandle.name} » disponible.`, "Clique sur « Reconnecter » pour autoriser l'accès.");
+    } else {
+      setStatus("Sauvegarde locale (navigateur). Lie un fichier pour que les profils survivent à un changement de navigateur ou un nettoyage.");
+    }
+  };
+
+  const save = (data) => {
+    saveLocal(data);
+    writeToFile(data);
+  };
 
   // Accepts either a raw URN ("ACoA...") or any LinkedIn URL/text containing one,
   // including URL-encoded forms like "%22ACoA...%22". Returns the URN or null.
@@ -172,7 +259,7 @@
     return `https://www.linkedin.com/search/results/content/?${params.toString()}`;
   };
 
-  let profiles = load();
+  let profiles = loadLocal();
 
   const render = () => {
     const list = $("list");
@@ -282,7 +369,83 @@
     }
   });
 
-  render();
+  $("link-file").addEventListener("click", async () => {
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: "linkedin-profiles.json",
+        types: [{ description: "JSON", accept: { "application/json": [".json"] } }],
+      });
+      fileHandle = handle;
+      await idbSetHandle(handle);
+      await writeToFile(profiles);
+      refreshSyncButtons("linked");
+    } catch (err) {
+      if (err && err.name !== "AbortError") {
+        alert("Impossible de lier le fichier : " + err.message);
+      }
+    }
+  });
+
+  $("reconnect-file").addEventListener("click", async () => {
+    if (!fileHandle) return;
+    if (!(await ensurePermission(fileHandle))) {
+      alert("Permission refusée.");
+      return;
+    }
+    try {
+      const fromFile = await readFromFile(fileHandle);
+      profiles = fromFile;
+      saveLocal(profiles);
+      render();
+      refreshSyncButtons("linked");
+    } catch (err) {
+      console.warn(err);
+      refreshSyncButtons("linked");
+    }
+  });
+
+  $("unlink-file").addEventListener("click", async () => {
+    fileHandle = null;
+    await idbDelHandle();
+    refreshSyncButtons("none");
+  });
+
+  (async () => {
+    if (!fsApiAvailable) {
+      refreshSyncButtons("none");
+      render();
+      return;
+    }
+    try {
+      const handle = await idbGetHandle();
+      if (!handle) {
+        refreshSyncButtons("none");
+        render();
+        return;
+      }
+      fileHandle = handle;
+      const granted = handle.queryPermission
+        ? (await handle.queryPermission({ mode: "readwrite" })) === "granted"
+        : false;
+      if (!granted) {
+        refreshSyncButtons("needs-permission");
+        render();
+        return;
+      }
+      try {
+        profiles = await readFromFile(handle);
+        saveLocal(profiles);
+      } catch (err) {
+        console.warn("Could not read backup file", err);
+      }
+      refreshSyncButtons("linked");
+      render();
+    } catch (err) {
+      console.warn(err);
+      refreshSyncButtons("none");
+      render();
+    }
+  })();
 })();
 </script>
 </body>
