@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>LinkedIn Feed Opener</title>
+<style>
+  :root {
+    --bg: #f3f2ef;
+    --card: #ffffff;
+    --text: #1d2226;
+    --muted: #5e6b75;
+    --border: #e0dfdc;
+    --primary: #0a66c2;
+    --primary-hover: #084d92;
+    --danger: #cc1016;
+    --danger-hover: #a30d12;
+    --shadow: 0 1px 2px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  p.lead { color: var(--muted); margin: 0 0 24px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; }
+  input[type="text"], input[type="url"] {
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font: inherit;
+    background: #fff;
+    width: 100%;
+  }
+  input:focus { outline: 2px solid var(--primary); outline-offset: -1px; border-color: var(--primary); }
+  button {
+    cursor: pointer;
+    font: inherit;
+    font-weight: 600;
+    border: none;
+    border-radius: 999px;
+    padding: 10px 16px;
+    transition: background 0.15s;
+  }
+  button.primary { background: var(--primary); color: #fff; }
+  button.primary:hover { background: var(--primary-hover); }
+  button.primary:disabled { background: #a8a8a8; cursor: not-allowed; }
+  button.ghost {
+    background: transparent;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    padding: 6px 12px;
+  }
+  button.ghost:hover { background: rgba(10,102,194,0.08); }
+  button.danger {
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid transparent;
+    padding: 6px 10px;
+  }
+  button.danger:hover { background: rgba(204,16,22,0.08); border-color: var(--danger); }
+  .toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .toolbar .count { color: var(--muted); margin-left: auto; font-size: 14px; }
+  ul.list { list-style: none; margin: 0; padding: 0; }
+  ul.list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 4px;
+    border-bottom: 1px solid var(--border);
+  }
+  ul.list li:last-child { border-bottom: none; }
+  .who { flex: 1; min-width: 0; }
+  .name { font-weight: 600; }
+  .slug { font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .empty { color: var(--muted); text-align: center; padding: 24px 8px; font-size: 14px; }
+  .help { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .help code { background: #eef3f8; padding: 1px 5px; border-radius: 3px; }
+  @media (max-width: 600px) {
+    form { grid-template-columns: 1fr; }
+    .slug { white-space: normal; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>LinkedIn Feed Opener</h1>
+  <p class="lead">Ajoute des profils LinkedIn et ouvre leurs posts récents en un clic.</p>
+
+  <div class="card">
+    <form id="add-form">
+      <input id="name" type="text" placeholder="Nom (ex. Jane Doe)" required />
+      <input id="url" type="text" placeholder="URL ou pseudo (ex. jane-doe ou linkedin.com/in/jane-doe)" required />
+      <button class="primary" type="submit">Ajouter</button>
+    </form>
+    <div class="help">
+      Tu peux coller l'URL complète (<code>https://www.linkedin.com/in/jane-doe/</code>) ou seulement le pseudo (<code>jane-doe</code>).
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <button id="open-all" class="primary" type="button">Ouvrir tous les posts récents</button>
+      <button id="export" class="ghost" type="button">Exporter</button>
+      <button id="import" class="ghost" type="button">Importer</button>
+      <input id="import-file" type="file" accept="application/json" hidden />
+      <span class="count" id="count"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <ul id="list" class="list"></ul>
+    <div id="empty" class="empty" hidden>Aucun profil pour l'instant. Ajoute-en un ci-dessus.</div>
+  </div>
+
+  <p class="help" style="text-align:center">
+    Les onglets s'ouvrent vers <code>/recent-activity/all/</code> de chaque profil. Si ton navigateur bloque les pop-ups, autorise-les pour cette page.
+  </p>
+</div>
+
+<script>
+(() => {
+  const STORAGE_KEY = "linkedin-feed-opener:profiles";
+  const $ = (id) => document.getElementById(id);
+
+  const load = () => {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+    catch { return []; }
+  };
+  const save = (profiles) => localStorage.setItem(STORAGE_KEY, JSON.stringify(profiles));
+
+  // Extracts the "slug" segment from a LinkedIn profile URL or accepts a raw slug.
+  // Returns null if we can't recognise it.
+  const parseSlug = (input) => {
+    const trimmed = input.trim().replace(/\/+$/, "");
+    if (!trimmed) return null;
+    const match = trimmed.match(/linkedin\.com\/in\/([^/?#]+)/i);
+    if (match) return decodeURIComponent(match[1]);
+    if (/^[A-Za-z0-9\-_%.À-ɏ]+$/.test(trimmed)) return trimmed;
+    return null;
+  };
+
+  const recentActivityUrl = (slug) =>
+    `https://www.linkedin.com/in/${encodeURIComponent(slug)}/recent-activity/all/`;
+
+  let profiles = load();
+
+  const render = () => {
+    const list = $("list");
+    const empty = $("empty");
+    list.innerHTML = "";
+    empty.hidden = profiles.length > 0;
+    $("count").textContent = profiles.length
+      ? `${profiles.length} profil${profiles.length > 1 ? "s" : ""}`
+      : "";
+    $("open-all").disabled = profiles.length === 0;
+
+    profiles.forEach((p, i) => {
+      const li = document.createElement("li");
+
+      const who = document.createElement("div");
+      who.className = "who";
+      const name = document.createElement("div");
+      name.className = "name";
+      name.textContent = p.name;
+      const slug = document.createElement("div");
+      slug.className = "slug";
+      slug.textContent = `linkedin.com/in/${p.slug}`;
+      who.append(name, slug);
+
+      const open = document.createElement("button");
+      open.className = "ghost";
+      open.type = "button";
+      open.textContent = "Ouvrir";
+      open.addEventListener("click", () => window.open(recentActivityUrl(p.slug), "_blank", "noopener"));
+
+      const del = document.createElement("button");
+      del.className = "danger";
+      del.type = "button";
+      del.textContent = "Supprimer";
+      del.addEventListener("click", () => {
+        profiles.splice(i, 1);
+        save(profiles);
+        render();
+      });
+
+      li.append(who, open, del);
+      list.append(li);
+    });
+  };
+
+  $("add-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = $("name").value.trim();
+    const slug = parseSlug($("url").value);
+    if (!name || !slug) {
+      alert("Vérifie le nom et l'URL/pseudo LinkedIn.");
+      return;
+    }
+    if (profiles.some((p) => p.slug.toLowerCase() === slug.toLowerCase())) {
+      alert("Ce profil est déjà dans la liste.");
+      return;
+    }
+    profiles.push({ name, slug });
+    save(profiles);
+    $("name").value = "";
+    $("url").value = "";
+    $("name").focus();
+    render();
+  });
+
+  $("open-all").addEventListener("click", () => {
+    profiles.forEach((p) => window.open(recentActivityUrl(p.slug), "_blank", "noopener"));
+  });
+
+  $("export").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(profiles, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "linkedin-profiles.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  $("import").addEventListener("click", () => $("import-file").click());
+  $("import-file").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const data = JSON.parse(await file.text());
+      if (!Array.isArray(data)) throw new Error("format");
+      const cleaned = data
+        .filter((p) => p && typeof p.name === "string" && typeof p.slug === "string")
+        .map((p) => ({ name: p.name.trim(), slug: p.slug.trim() }))
+        .filter((p) => p.name && p.slug);
+      const seen = new Set(profiles.map((p) => p.slug.toLowerCase()));
+      cleaned.forEach((p) => {
+        if (!seen.has(p.slug.toLowerCase())) {
+          profiles.push(p);
+          seen.add(p.slug.toLowerCase());
+        }
+      });
+      save(profiles);
+      render();
+    } catch {
+      alert("Fichier invalide.");
+    } finally {
+      e.target.value = "";
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
