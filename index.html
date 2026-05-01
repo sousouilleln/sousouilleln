@@ -85,39 +85,52 @@
   ul.list li:last-child { border-bottom: none; }
   .who { flex: 1; min-width: 0; }
   .name { font-weight: 600; }
-  .slug { font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .urn { font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
   .empty { color: var(--muted); text-align: center; padding: 24px 8px; font-size: 14px; }
   .help { font-size: 13px; color: var(--muted); margin-top: 8px; }
   .help code { background: #eef3f8; padding: 1px 5px; border-radius: 3px; }
+  details { margin-top: 8px; font-size: 13px; color: var(--muted); }
+  details summary { cursor: pointer; color: var(--primary); font-weight: 600; }
+  details ol { margin: 8px 0 0; padding-left: 20px; }
+  details li { margin-bottom: 4px; }
   @media (max-width: 600px) {
     form { grid-template-columns: 1fr; }
-    .slug { white-space: normal; }
+    .urn { white-space: normal; word-break: break-all; }
   }
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>LinkedIn Feed Opener</h1>
-  <p class="lead">Ajoute des profils LinkedIn et ouvre leurs posts récents en un clic.</p>
+  <p class="lead">Ajoute des profils LinkedIn et ouvre une recherche unique avec les posts les plus récents de toute ta liste.</p>
 
   <div class="card">
     <form id="add-form">
       <input id="name" type="text" placeholder="Nom (ex. Jane Doe)" required />
-      <input id="url" type="text" placeholder="URL ou pseudo (ex. jane-doe ou linkedin.com/in/jane-doe)" required />
+      <input id="urn" type="text" placeholder="URN (ACoA...) ou URL de recherche LinkedIn" required />
       <button class="primary" type="submit">Ajouter</button>
     </form>
-    <div class="help">
-      Tu peux coller l'URL complète (<code>https://www.linkedin.com/in/jane-doe/</code>) ou seulement le pseudo (<code>jane-doe</code>).
-    </div>
+    <details>
+      <summary>Comment trouver l'URN d'une personne ?</summary>
+      <ol>
+        <li>Sur LinkedIn, ouvre une recherche de posts (loupe → onglet <em>Posts</em>).</li>
+        <li>Clique sur le filtre <em>From member</em> et sélectionne uniquement la personne voulue.</li>
+        <li>Dans l'URL, repère <code>fromMember=%5B%22ACoA...%22%5D</code>. La chaîne <code>ACoA...</code> est l'URN.</li>
+        <li>Tu peux coller soit cette chaîne, soit l'URL entière de la recherche : je l'extrais automatiquement.</li>
+      </ol>
+    </details>
   </div>
 
   <div class="card">
     <div class="toolbar">
-      <button id="open-all" class="primary" type="button">Ouvrir tous les posts récents</button>
+      <button id="open-search" class="primary" type="button">Ouvrir la recherche (posts récents)</button>
       <button id="export" class="ghost" type="button">Exporter</button>
       <button id="import" class="ghost" type="button">Importer</button>
       <input id="import-file" type="file" accept="application/json" hidden />
       <span class="count" id="count"></span>
+    </div>
+    <div class="help">
+      Le bouton ouvre <code>linkedin.com/search/results/content/</code> avec tous les profils de ta liste en filtre <em>From member</em>, triés par date.
     </div>
   </div>
 
@@ -125,10 +138,6 @@
     <ul id="list" class="list"></ul>
     <div id="empty" class="empty" hidden>Aucun profil pour l'instant. Ajoute-en un ci-dessus.</div>
   </div>
-
-  <p class="help" style="text-align:center">
-    Les onglets s'ouvrent vers <code>/recent-activity/all/</code> de chaque profil. Si ton navigateur bloque les pop-ups, autorise-les pour cette page.
-  </p>
 </div>
 
 <script>
@@ -142,19 +151,26 @@
   };
   const save = (profiles) => localStorage.setItem(STORAGE_KEY, JSON.stringify(profiles));
 
-  // Extracts the "slug" segment from a LinkedIn profile URL or accepts a raw slug.
-  // Returns null if we can't recognise it.
-  const parseSlug = (input) => {
-    const trimmed = input.trim().replace(/\/+$/, "");
-    if (!trimmed) return null;
-    const match = trimmed.match(/linkedin\.com\/in\/([^/?#]+)/i);
-    if (match) return decodeURIComponent(match[1]);
-    if (/^[A-Za-z0-9\-_%.À-ɏ]+$/.test(trimmed)) return trimmed;
-    return null;
+  // Accepts either a raw URN ("ACoA...") or any LinkedIn URL/text containing one,
+  // including URL-encoded forms like "%22ACoA...%22". Returns the URN or null.
+  const parseUrn = (input) => {
+    if (!input) return null;
+    let text = input.trim();
+    try { text = decodeURIComponent(text); } catch { /* ignore malformed */ }
+    const match = text.match(/ACoA[A-Za-z0-9_-]+/);
+    return match ? match[0] : null;
   };
 
-  const recentActivityUrl = (slug) =>
-    `https://www.linkedin.com/in/${encodeURIComponent(slug)}/recent-activity/all/`;
+  const buildSearchUrl = (urns) => {
+    const fromMember = JSON.stringify(urns);
+    const sortBy = JSON.stringify(["date_posted"]);
+    const params = new URLSearchParams({
+      origin: "FACETED_SEARCH",
+      sortBy,
+      fromMember,
+    });
+    return `https://www.linkedin.com/search/results/content/?${params.toString()}`;
+  };
 
   let profiles = load();
 
@@ -166,7 +182,7 @@
     $("count").textContent = profiles.length
       ? `${profiles.length} profil${profiles.length > 1 ? "s" : ""}`
       : "";
-    $("open-all").disabled = profiles.length === 0;
+    $("open-search").disabled = profiles.length === 0;
 
     profiles.forEach((p, i) => {
       const li = document.createElement("li");
@@ -176,16 +192,17 @@
       const name = document.createElement("div");
       name.className = "name";
       name.textContent = p.name;
-      const slug = document.createElement("div");
-      slug.className = "slug";
-      slug.textContent = `linkedin.com/in/${p.slug}`;
-      who.append(name, slug);
+      const urn = document.createElement("div");
+      urn.className = "urn";
+      urn.textContent = p.urn;
+      who.append(name, urn);
 
       const open = document.createElement("button");
       open.className = "ghost";
       open.type = "button";
       open.textContent = "Ouvrir";
-      open.addEventListener("click", () => window.open(recentActivityUrl(p.slug), "_blank", "noopener"));
+      open.title = "Ouvrir une recherche pour cette seule personne";
+      open.addEventListener("click", () => window.open(buildSearchUrl([p.urn]), "_blank", "noopener"));
 
       const del = document.createElement("button");
       del.className = "danger";
@@ -205,25 +222,26 @@
   $("add-form").addEventListener("submit", (e) => {
     e.preventDefault();
     const name = $("name").value.trim();
-    const slug = parseSlug($("url").value);
-    if (!name || !slug) {
-      alert("Vérifie le nom et l'URL/pseudo LinkedIn.");
+    const urn = parseUrn($("urn").value);
+    if (!name || !urn) {
+      alert("Vérifie le nom et l'URN. L'URN ressemble à « ACoAA... ».");
       return;
     }
-    if (profiles.some((p) => p.slug.toLowerCase() === slug.toLowerCase())) {
+    if (profiles.some((p) => p.urn === urn)) {
       alert("Ce profil est déjà dans la liste.");
       return;
     }
-    profiles.push({ name, slug });
+    profiles.push({ name, urn });
     save(profiles);
     $("name").value = "";
-    $("url").value = "";
+    $("urn").value = "";
     $("name").focus();
     render();
   });
 
-  $("open-all").addEventListener("click", () => {
-    profiles.forEach((p) => window.open(recentActivityUrl(p.slug), "_blank", "noopener"));
+  $("open-search").addEventListener("click", () => {
+    if (!profiles.length) return;
+    window.open(buildSearchUrl(profiles.map((p) => p.urn)), "_blank", "noopener");
   });
 
   $("export").addEventListener("click", () => {
@@ -244,14 +262,15 @@
       const data = JSON.parse(await file.text());
       if (!Array.isArray(data)) throw new Error("format");
       const cleaned = data
-        .filter((p) => p && typeof p.name === "string" && typeof p.slug === "string")
-        .map((p) => ({ name: p.name.trim(), slug: p.slug.trim() }))
-        .filter((p) => p.name && p.slug);
-      const seen = new Set(profiles.map((p) => p.slug.toLowerCase()));
+        .map((p) => p && typeof p.name === "string"
+          ? { name: p.name.trim(), urn: parseUrn(p.urn || "") }
+          : null)
+        .filter((p) => p && p.name && p.urn);
+      const seen = new Set(profiles.map((p) => p.urn));
       cleaned.forEach((p) => {
-        if (!seen.has(p.slug.toLowerCase())) {
+        if (!seen.has(p.urn)) {
           profiles.push(p);
-          seen.add(p.slug.toLowerCase());
+          seen.add(p.urn);
         }
       });
       save(profiles);
