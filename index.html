@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>LinkedIn Feed Opener</title>
+<style>
+  :root {
+    --bg: #f3f2ef;
+    --card: #ffffff;
+    --text: #1d2226;
+    --muted: #5e6b75;
+    --border: #e0dfdc;
+    --primary: #0a66c2;
+    --primary-hover: #084d92;
+    --danger: #cc1016;
+    --danger-hover: #a30d12;
+    --shadow: 0 1px 2px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  p.lead { color: var(--muted); margin: 0 0 24px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; }
+  input[type="text"], input[type="url"] {
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font: inherit;
+    background: #fff;
+    width: 100%;
+  }
+  input:focus { outline: 2px solid var(--primary); outline-offset: -1px; border-color: var(--primary); }
+  button {
+    cursor: pointer;
+    font: inherit;
+    font-weight: 600;
+    border: none;
+    border-radius: 999px;
+    padding: 10px 16px;
+    transition: background 0.15s;
+  }
+  button.primary { background: var(--primary); color: #fff; }
+  button.primary:hover { background: var(--primary-hover); }
+  button.primary:disabled { background: #a8a8a8; cursor: not-allowed; }
+  button.ghost {
+    background: transparent;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    padding: 6px 12px;
+  }
+  button.ghost:hover { background: rgba(10,102,194,0.08); }
+  button.danger {
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid transparent;
+    padding: 6px 10px;
+  }
+  button.danger:hover { background: rgba(204,16,22,0.08); border-color: var(--danger); }
+  .toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .toolbar .count { color: var(--muted); margin-left: auto; font-size: 14px; }
+  ul.list { list-style: none; margin: 0; padding: 0; }
+  ul.list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 4px;
+    border-bottom: 1px solid var(--border);
+  }
+  ul.list li:last-child { border-bottom: none; }
+  .who { flex: 1; min-width: 0; }
+  .name { font-weight: 600; }
+  .urn { font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .empty { color: var(--muted); text-align: center; padding: 24px 8px; font-size: 14px; }
+  .help { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .help code { background: #eef3f8; padding: 1px 5px; border-radius: 3px; }
+  details { margin-top: 8px; font-size: 13px; color: var(--muted); }
+  details summary { cursor: pointer; color: var(--primary); font-weight: 600; }
+  details ol { margin: 8px 0 0; padding-left: 20px; }
+  details li { margin-bottom: 4px; }
+  @media (max-width: 600px) {
+    form { grid-template-columns: 1fr; }
+    .urn { white-space: normal; word-break: break-all; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>LinkedIn Feed Opener</h1>
+  <p class="lead">Ajoute des profils LinkedIn et ouvre une recherche unique avec les posts les plus récents de toute ta liste.</p>
+
+  <div class="card">
+    <form id="add-form">
+      <input id="name" type="text" placeholder="Nom (ex. Jane Doe)" required />
+      <input id="urn" type="text" placeholder="URN (ACoA...) ou URL de recherche LinkedIn" required />
+      <button class="primary" type="submit">Ajouter</button>
+    </form>
+    <details>
+      <summary>Comment trouver l'URN d'une personne ?</summary>
+      <ol>
+        <li>Sur LinkedIn, ouvre une recherche de posts (loupe → onglet <em>Posts</em>).</li>
+        <li>Clique sur le filtre <em>From member</em> et sélectionne uniquement la personne voulue.</li>
+        <li>Dans l'URL, repère <code>fromMember=%5B%22ACoA...%22%5D</code>. La chaîne <code>ACoA...</code> est l'URN.</li>
+        <li>Tu peux coller soit cette chaîne, soit l'URL entière de la recherche : je l'extrais automatiquement.</li>
+      </ol>
+    </details>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <button id="open-search" class="primary" type="button">Ouvrir la recherche (posts récents)</button>
+      <button id="link-file" class="ghost" type="button" hidden>Lier un fichier de sauvegarde</button>
+      <button id="reconnect-file" class="ghost" type="button" hidden>Reconnecter la sauvegarde</button>
+      <button id="unlink-file" class="danger" type="button" hidden>Délier</button>
+      <button id="export" class="ghost" type="button">Exporter</button>
+      <button id="import" class="ghost" type="button">Importer</button>
+      <input id="import-file" type="file" accept="application/json" hidden />
+      <span class="count" id="count"></span>
+    </div>
+    <div id="sync-status" class="help"></div>
+    <div class="help">
+      Le bouton ouvre <code>linkedin.com/search/results/content/</code> avec tous les profils de ta liste en filtre <em>From member</em>, triés par date.
+    </div>
+  </div>
+
+  <div class="card">
+    <ul id="list" class="list"></ul>
+    <div id="empty" class="empty" hidden>Aucun profil pour l'instant. Ajoute-en un ci-dessus.</div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const STORAGE_KEY = "linkedin-feed-opener:profiles";
+  const $ = (id) => document.getElementById(id);
+
+  const loadLocal = () => {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+    catch { return []; }
+  };
+  const saveLocal = (profiles) => localStorage.setItem(STORAGE_KEY, JSON.stringify(profiles));
+
+  // Persist a single FileSystemFileHandle in IndexedDB so the link survives reloads.
+  const HANDLE_DB = "linkedin-feed-opener";
+  const HANDLE_STORE = "handles";
+  const HANDLE_KEY = "backup";
+  const idbOpen = () => new Promise((resolve, reject) => {
+    const req = indexedDB.open(HANDLE_DB, 1);
+    req.onupgradeneeded = () => req.result.createObjectStore(HANDLE_STORE);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+  const idbCall = (mode, fn) => idbOpen().then((db) => new Promise((resolve, reject) => {
+    const tx = db.transaction(HANDLE_STORE, mode);
+    const store = tx.objectStore(HANDLE_STORE);
+    const req = fn(store);
+    tx.oncomplete = () => resolve(req && req.result);
+    tx.onerror = () => reject(tx.error);
+  }));
+  const idbGetHandle = () => idbCall("readonly", (s) => s.get(HANDLE_KEY));
+  const idbSetHandle = (h) => idbCall("readwrite", (s) => s.put(h, HANDLE_KEY));
+  const idbDelHandle = () => idbCall("readwrite", (s) => s.delete(HANDLE_KEY));
+
+  const fsApiAvailable = typeof window.showSaveFilePicker === "function";
+  let fileHandle = null;
+  let writeChain = Promise.resolve();
+
+  const ensurePermission = async (handle, mode = "readwrite") => {
+    if (!handle.queryPermission) return true;
+    if ((await handle.queryPermission({ mode })) === "granted") return true;
+    return (await handle.requestPermission({ mode })) === "granted";
+  };
+
+  const readFromFile = async (handle) => {
+    const file = await handle.getFile();
+    const text = (await file.text()).trim();
+    if (!text) return [];
+    const data = JSON.parse(text);
+    if (!Array.isArray(data)) throw new Error("format");
+    return data
+      .map((p) => p && typeof p.name === "string"
+        ? { name: p.name.trim(), urn: parseUrn(p.urn || "") }
+        : null)
+      .filter((p) => p && p.name && p.urn);
+  };
+
+  const writeToFile = (data) => {
+    if (!fileHandle) return;
+    writeChain = writeChain.then(async () => {
+      try {
+        const writable = await fileHandle.createWritable();
+        await writable.write(JSON.stringify(data, null, 2));
+        await writable.close();
+      } catch (err) {
+        console.warn("File write failed", err);
+      }
+    });
+    return writeChain;
+  };
+
+  const setStatus = (text, hint = "") => {
+    const el = $("sync-status");
+    el.textContent = text + (hint ? "  " + hint : "");
+  };
+
+  const refreshSyncButtons = (state) => {
+    $("link-file").hidden = !fsApiAvailable || state === "linked" || state === "needs-permission";
+    $("reconnect-file").hidden = state !== "needs-permission";
+    $("unlink-file").hidden = state !== "linked" && state !== "needs-permission";
+    if (!fsApiAvailable) {
+      setStatus("Sauvegarde locale uniquement (ce navigateur ne supporte pas la liaison de fichier).");
+    } else if (state === "linked") {
+      setStatus(`Sauvegarde liée à « ${fileHandle.name} ». Les modifications sont écrites automatiquement.`);
+    } else if (state === "needs-permission") {
+      setStatus(`Sauvegarde « ${fileHandle.name} » disponible.`, "Clique sur « Reconnecter » pour autoriser l'accès.");
+    } else {
+      setStatus("Sauvegarde locale (navigateur). Lie un fichier pour que les profils survivent à un changement de navigateur ou un nettoyage.");
+    }
+  };
+
+  const save = (data) => {
+    saveLocal(data);
+    writeToFile(data);
+  };
+
+  // Accepts either a raw URN ("ACoA...") or any LinkedIn URL/text containing one,
+  // including URL-encoded forms like "%22ACoA...%22". Returns the URN or null.
+  const parseUrn = (input) => {
+    if (!input) return null;
+    let text = input.trim();
+    try { text = decodeURIComponent(text); } catch { /* ignore malformed */ }
+    const match = text.match(/ACoA[A-Za-z0-9_-]+/);
+    return match ? match[0] : null;
+  };
+
+  const buildSearchUrl = (urns) => {
+    const fromMember = JSON.stringify(urns);
+    const sortBy = JSON.stringify(["date_posted"]);
+    const params = new URLSearchParams({
+      origin: "FACETED_SEARCH",
+      sortBy,
+      fromMember,
+    });
+    return `https://www.linkedin.com/search/results/content/?${params.toString()}`;
+  };
+
+  let profiles = loadLocal();
+
+  const render = () => {
+    const list = $("list");
+    const empty = $("empty");
+    list.innerHTML = "";
+    empty.hidden = profiles.length > 0;
+    $("count").textContent = profiles.length
+      ? `${profiles.length} profil${profiles.length > 1 ? "s" : ""}`
+      : "";
+    $("open-search").disabled = profiles.length === 0;
+
+    profiles.forEach((p, i) => {
+      const li = document.createElement("li");
+
+      const who = document.createElement("div");
+      who.className = "who";
+      const name = document.createElement("div");
+      name.className = "name";
+      name.textContent = p.name;
+      const urn = document.createElement("div");
+      urn.className = "urn";
+      urn.textContent = p.urn;
+      who.append(name, urn);
+
+      const open = document.createElement("button");
+      open.className = "ghost";
+      open.type = "button";
+      open.textContent = "Ouvrir";
+      open.title = "Ouvrir une recherche pour cette seule personne";
+      open.addEventListener("click", () => window.open(buildSearchUrl([p.urn]), "_blank", "noopener"));
+
+      const del = document.createElement("button");
+      del.className = "danger";
+      del.type = "button";
+      del.textContent = "Supprimer";
+      del.addEventListener("click", () => {
+        profiles.splice(i, 1);
+        save(profiles);
+        render();
+      });
+
+      li.append(who, open, del);
+      list.append(li);
+    });
+  };
+
+  $("add-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = $("name").value.trim();
+    const urn = parseUrn($("urn").value);
+    if (!name || !urn) {
+      alert("Vérifie le nom et l'URN. L'URN ressemble à « ACoAA... ».");
+      return;
+    }
+    if (profiles.some((p) => p.urn === urn)) {
+      alert("Ce profil est déjà dans la liste.");
+      return;
+    }
+    profiles.push({ name, urn });
+    save(profiles);
+    $("name").value = "";
+    $("urn").value = "";
+    $("name").focus();
+    render();
+  });
+
+  $("open-search").addEventListener("click", () => {
+    if (!profiles.length) return;
+    window.open(buildSearchUrl(profiles.map((p) => p.urn)), "_blank", "noopener");
+  });
+
+  $("export").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(profiles, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "linkedin-profiles.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  $("import").addEventListener("click", () => $("import-file").click());
+  $("import-file").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const data = JSON.parse(await file.text());
+      if (!Array.isArray(data)) throw new Error("format");
+      const cleaned = data
+        .map((p) => p && typeof p.name === "string"
+          ? { name: p.name.trim(), urn: parseUrn(p.urn || "") }
+          : null)
+        .filter((p) => p && p.name && p.urn);
+      const seen = new Set(profiles.map((p) => p.urn));
+      cleaned.forEach((p) => {
+        if (!seen.has(p.urn)) {
+          profiles.push(p);
+          seen.add(p.urn);
+        }
+      });
+      save(profiles);
+      render();
+    } catch {
+      alert("Fichier invalide.");
+    } finally {
+      e.target.value = "";
+    }
+  });
+
+  $("link-file").addEventListener("click", async () => {
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: "linkedin-profiles.json",
+        types: [{ description: "JSON", accept: { "application/json": [".json"] } }],
+      });
+      fileHandle = handle;
+      await idbSetHandle(handle);
+      await writeToFile(profiles);
+      refreshSyncButtons("linked");
+    } catch (err) {
+      if (err && err.name !== "AbortError") {
+        alert("Impossible de lier le fichier : " + err.message);
+      }
+    }
+  });
+
+  $("reconnect-file").addEventListener("click", async () => {
+    if (!fileHandle) return;
+    if (!(await ensurePermission(fileHandle))) {
+      alert("Permission refusée.");
+      return;
+    }
+    try {
+      const fromFile = await readFromFile(fileHandle);
+      profiles = fromFile;
+      saveLocal(profiles);
+      render();
+      refreshSyncButtons("linked");
+    } catch (err) {
+      console.warn(err);
+      refreshSyncButtons("linked");
+    }
+  });
+
+  $("unlink-file").addEventListener("click", async () => {
+    fileHandle = null;
+    await idbDelHandle();
+    refreshSyncButtons("none");
+  });
+
+  (async () => {
+    if (!fsApiAvailable) {
+      refreshSyncButtons("none");
+      render();
+      return;
+    }
+    try {
+      const handle = await idbGetHandle();
+      if (!handle) {
+        refreshSyncButtons("none");
+        render();
+        return;
+      }
+      fileHandle = handle;
+      const granted = handle.queryPermission
+        ? (await handle.queryPermission({ mode: "readwrite" })) === "granted"
+        : false;
+      if (!granted) {
+        refreshSyncButtons("needs-permission");
+        render();
+        return;
+      }
+      try {
+        profiles = await readFromFile(handle);
+        saveLocal(profiles);
+      } catch (err) {
+        console.warn("Could not read backup file", err);
+      }
+      refreshSyncButtons("linked");
+      render();
+    } catch (err) {
+      console.warn(err);
+      refreshSyncButtons("none");
+      render();
+    }
+  })();
+})();
+</script>
+</body>
+</html>
